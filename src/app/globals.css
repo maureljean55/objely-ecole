@@ -197,3 +197,36 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Splash scene (same as the Objely app): orbiting objects, pulsing magnifier, radar pings. */
+@keyframes orbit-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes orbit-counter-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+@keyframes magnifier-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 14px rgba(147, 197, 253, 0.5));
+  }
+  50% {
+    transform: scale(1.07);
+    filter: drop-shadow(0 0 30px rgba(191, 219, 254, 0.9));
+  }
+}
+@keyframes radar-ping {
+  0% { transform: scale(0.55); opacity: 0.45; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+@keyframes splash-fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.orbit-ring { animation: orbit-spin 16s linear infinite; }
+.orbit-item-inner { animation: orbit-counter-spin 16s linear infinite; }
+.magnifier-pulse { animation: magnifier-pulse 2.1s ease-in-out infinite; }
+.radar-ping { animation: radar-ping 2.6s cubic-bezier(0.2, 0.6, 0.4, 1) infinite; }
+.splash-fade-up { animation: splash-fade-up 0.7s ease-out both; }

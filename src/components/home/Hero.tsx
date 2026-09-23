@@ -1,63 +1,68 @@
-import { Icon } from "../kiosk/Icon";
-import { LogoMark } from "../kiosk/LogoMark";
+const ORBIT_OBJECTS = [
+  { id: "wallet", src: "/illustrations/splash/wallet.png", alt: "Portefeuille", angle: 0 },
+  { id: "phone", src: "/illustrations/splash/phone.png", alt: "Téléphone", angle: 90 },
+  { id: "keys", src: "/illustrations/splash/keys.png", alt: "Clés", angle: 180 },
+  { id: "earbuds", src: "/illustrations/splash/earbuds.png", alt: "Écouteurs", angle: 270 },
+] as const;
 
-function Chip({ icon, iconClass, fill, className, children }: {
-  icon: string;
-  iconClass: string;
-  fill?: boolean;
-  className: string;
-  children: string;
-}) {
-  return (
-    <div className={`absolute z-20 flex items-center gap-1.5 rounded-full bg-white px-3.5 py-2 shadow-rest ring-1 ring-line ${className}`}>
-      <Icon name={icon} size={18} fill={fill} className={iconClass} />
-      <span className="text-label-sm text-ink">{children}</span>
-    </div>
-  );
-}
+// The Objely app's splash, scaled ~1.4× to fill the panel: same gradient,
+// same objects orbiting a pulsing magnifier.
+const SCENE = 392;
+const ORBIT_RADIUS = 168;
+const OBJECT_SIZE = 78;
 
-// The two interlocked rings are the brand: a lost thing and its owner, linked.
-// They sit on a soft disc; the objects that get lost orbit around them.
 export function Hero() {
   return (
-    <div className="relative flex h-full flex-col items-center justify-between overflow-hidden rounded-3xl border border-white bg-[linear-gradient(160deg,#eaf4ff_0%,#f0ebff_100%)] p-6 shadow-rest">
-      <div aria-hidden="true" className="pointer-events-none absolute -left-16 -top-16 size-56 rounded-full bg-blue-light/25 blur-3xl" />
-      <div aria-hidden="true" className="pointer-events-none absolute -bottom-20 -right-16 size-64 rounded-full bg-purple-light/30 blur-3xl" />
+    <div
+      className="relative flex h-full flex-col overflow-hidden rounded-3xl shadow-sheet"
+      style={{ background: "linear-gradient(135deg, #0058bc 0%, #0070eb 35%, #7c6ff0 70%, #a19afd 100%)" }}
+    >
+      <div className="flex flex-1 items-center justify-center">
+        <div className="relative flex items-center justify-center" style={{ width: SCENE, height: SCENE }}>
+          {/* Radar pings behind the magnifier */}
+          <span aria-hidden="true" className="radar-ping absolute size-[134px] rounded-full border border-blue-200/40" />
+          <span
+            aria-hidden="true"
+            className="radar-ping absolute size-[134px] rounded-full border border-blue-200/40"
+            style={{ animationDelay: "1.3s" }}
+          />
 
-      <div className="z-10 flex items-center gap-1.5 rounded-full bg-white/90 px-3.5 py-1.5 shadow-rest">
-        <Icon name="auto_awesome" size={18} fill className="text-blue-ink" />
-        <span className="text-label-sm uppercase tracking-wide text-blue-ink">Service scolaire intelligent</span>
-      </div>
-
-      <div className="relative flex w-full flex-1 items-center justify-center">
-        <Chip icon="check_circle" fill iconClass="text-ok-ink" className="left-1 top-10 animate-float [animation-duration:5s]">
-          Retrouvé !
-        </Chip>
-        <Chip icon="qr_code" iconClass="text-purple-ink" className="-right-1 top-[46%]">
-          Scan QR
-        </Chip>
-        <Chip icon="verified" fill iconClass="text-blue-ink" className="bottom-10 left-8">
-          Sécurisé
-        </Chip>
-
-        <div className="relative flex size-[300px] items-center justify-center">
-          <div aria-hidden="true" className="absolute inset-0 rounded-full border border-white/80" />
-          <div aria-hidden="true" className="absolute inset-9 rounded-full border border-white/90" />
-          <div className="relative flex size-[214px] items-center justify-center rounded-full bg-white shadow-sheet">
-            <LogoMark height={112} priority className="animate-float" />
-            <div className="absolute -right-3 -top-3 flex size-16 -rotate-12 items-center justify-center rounded-2xl bg-white text-blue-ink shadow-sheet ring-1 ring-line">
-              <Icon name="smartphone" size={32} />
-            </div>
-            <div className="absolute -bottom-2 -left-4 flex size-14 rotate-12 items-center justify-center rounded-2xl bg-purple text-white shadow-sheet">
-              <Icon name="key" fill size={28} />
-            </div>
+          {/* Orbiting objects */}
+          <div className="orbit-ring absolute inset-0">
+            {ORBIT_OBJECTS.map((obj) => (
+              <div
+                key={obj.id}
+                className="absolute left-1/2 top-1/2"
+                style={{
+                  width: OBJECT_SIZE,
+                  height: OBJECT_SIZE,
+                  margin: `${-OBJECT_SIZE / 2}px 0 0 ${-OBJECT_SIZE / 2}px`,
+                  transform: `rotate(${obj.angle}deg) translate(${ORBIT_RADIUS}px) rotate(-${obj.angle}deg)`,
+                }}
+              >
+                <div className="orbit-item-inner flex size-full items-center justify-center drop-shadow-[0_6px_14px_rgba(0,0,0,0.45)]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={obj.src} alt={obj.alt} draggable={false} className="max-h-full max-w-full object-contain" />
+                </div>
+              </div>
+            ))}
           </div>
+
+          {/* Magnifying glass */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/illustrations/splash/magnifier.png"
+            alt=""
+            draggable={false}
+            className="magnifier-pulse pointer-events-none relative w-[180px] select-none"
+          />
         </div>
       </div>
 
-      <p className="z-10 rounded-xl bg-white/85 px-4 py-2 text-body-md font-medium text-slate">
-        Plateforme connectée des objets trouvés du lycée
-      </p>
+      <div className="splash-fade-up flex flex-col items-center pb-10" style={{ animationDelay: "0.15s" }}>
+        <p className="text-h-lg font-bold tracking-tight text-white">Objely</p>
+        <p className="mt-1 text-body-md font-medium text-white/90">Perdu. Trouvé. Retrouvé.</p>
+      </div>
     </div>
   );
 }

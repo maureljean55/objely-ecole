@@ -14,7 +14,7 @@ const OBJECT_SIZE = 50;
 export function Hero() {
   return (
     <div
-      className="relative flex h-full flex-col overflow-hidden rounded-3xl shadow-sheet"
+      className="relative flex h-full flex-col overflow-hidden rounded-3xl"
       style={{ background: "linear-gradient(135deg, #0058bc 0%, #0070eb 35%, #7c6ff0 70%, #a19afd 100%)" }}
     >
       <div className="flex flex-1 items-center justify-center">
@@ -60,7 +60,7 @@ export function Hero() {
       </div>
 
       <div className="splash-fade-up flex flex-col items-center pb-10" style={{ animationDelay: "0.15s" }}>
-        <p className="text-h-lg font-bold tracking-tight text-white">Objely</p>
+        <p className="font-display text-h-lg font-extrabold text-white">Objely</p>
         <p className="mt-1 text-body-md font-medium text-white/90">Perdu. Trouvé. Retrouvé.</p>
       </div>
     </div>

@@ -5,7 +5,7 @@ export const FRAME = { width: 1194, height: 834 } as const;
 // database once schools/kiosks are modelled.
 export const KIOSK = {
   school: "Lycée Jean Moulin",
-  station: "Borne Entrée Principale",
+  station: "Borne d'entrée principale",
   version: "2.4",
   helpDesk: "Poste 204",
   // Seconds without a touch before the borne wipes the form and returns home.

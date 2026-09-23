@@ -4,13 +4,14 @@ import { useId, type InputHTMLAttributes, type ReactNode, type Ref, type Textare
 import { Icon } from "../kiosk/Icon";
 
 const CONTROL =
-  "w-full rounded-field border-[1.5px] text-body-xl text-ink outline-none transition-[background-color,border-color,box-shadow] placeholder:text-slate/70";
+  "w-full rounded-field border-2 text-body-xl text-ink outline-none transition-[background-color,border-color,box-shadow] placeholder:text-slate/60";
 
-// Focus halo is blue, or red while the field is invalid so the error never disappears under the cursor.
-function tone(error?: string) {
+// Focus ring follows the accent of the side, or turns red while the field is invalid
+// so the error never disappears under the cursor.
+export function tone(error?: string) {
   return error
-    ? "border-danger bg-danger-tint focus:shadow-[0_0_0_4px_rgba(239,68,68,0.2)]"
-    : "border-line bg-canvas focus:bg-white focus:border-blue focus:shadow-[0_0_0_4px_rgba(8,123,234,0.18)]";
+    ? "border-danger bg-danger-tint focus:shadow-[0_0_0_4px_rgba(179,38,30,0.2)]"
+    : "border-line-strong bg-white focus:border-accent focus:shadow-[0_0_0_4px_color-mix(in_srgb,var(--accent)_25%,transparent)]";
 }
 
 type FieldShellProps = {
@@ -19,7 +20,7 @@ type FieldShellProps = {
   required?: boolean;
   aside?: ReactNode;
   error?: string;
-  /** Neutral line under the control (helper or "Valide"). */
+  /** Neutral line under the control (helper text). */
   note?: ReactNode;
   children: ReactNode;
 };
@@ -27,11 +28,11 @@ type FieldShellProps = {
 export function FieldShell({ id, label, required, aside, error, note, children }: FieldShellProps) {
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
-      <label htmlFor={id} className="flex items-center justify-between gap-3 text-label-md text-ink">
+      <label htmlFor={id} className="flex items-baseline justify-between gap-3 text-label-md text-ink">
         <span>
           {label}
           {required && (
-            <span aria-hidden="true" className="ml-0.5 text-danger-ink">
+            <span aria-hidden="true" className="ml-0.5 text-danger">
               *
             </span>
           )}
@@ -40,8 +41,8 @@ export function FieldShell({ id, label, required, aside, error, note, children }
       </label>
       {children}
       {error ? (
-        <p id={`${id}-note`} role="alert" className="flex items-center gap-1 text-label-sm font-medium text-danger-ink">
-          <Icon name="info" size={16} />
+        <p id={`${id}-note`} role="alert" className="flex items-center gap-1 text-label-sm font-semibold text-danger">
+          <Icon name="error" size={17} fill />
           {error}
         </p>
       ) : (
@@ -64,8 +65,6 @@ type TextFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "
   note?: ReactNode;
   /** Leading icon. */
   icon?: string;
-  /** Trailing non-interactive icon shown instead of the clear button. */
-  trailingIcon?: string;
   inputRef?: Ref<HTMLInputElement>;
 };
 
@@ -77,7 +76,6 @@ export function TextField({
   error,
   note,
   icon,
-  trailingIcon,
   required,
   inputRef,
   className = "",
@@ -101,19 +99,15 @@ export function TextField({
           className={`h-14 pr-14 ${icon ? "pl-12" : "pl-4"} ${CONTROL} ${tone(error)} ${className}`}
           {...props}
         />
-        {error ? (
-          <Icon name="error" size={24} className="pointer-events-none absolute right-4 text-danger" />
-        ) : value ? (
+        {value && (
           <button
             type="button"
             aria-label={`Effacer ${label.toLowerCase()}`}
             onClick={() => onChange("")}
-            className="press absolute right-1.5 flex size-11 items-center justify-center rounded-full text-slate hover:bg-line/60 hover:text-ink"
+            className="press absolute right-1.5 flex size-11 items-center justify-center rounded-full text-slate hover:text-ink"
           >
             <Icon name="cancel" size={22} />
           </button>
-        ) : (
-          trailingIcon && <Icon name={trailingIcon} size={22} className="pointer-events-none absolute right-4 text-slate" />
         )}
       </div>
     </FieldShell>
@@ -132,12 +126,12 @@ export function TextArea({ label, value, onChange, optional, maxLength, classNam
   const id = useId();
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
-      <div className="flex items-center justify-between text-label-md text-ink">
+      <div className="flex items-baseline justify-between text-label-md text-ink">
         <label htmlFor={id}>
           {label} {optional && <span className="font-normal text-slate">{optional}</span>}
         </label>
-        <span className="text-label-sm font-medium tabular-nums text-slate">
-          {value.length} / {maxLength} caractères
+        <span className="font-mono text-label-sm tabular-nums text-slate">
+          {value.length}/{maxLength}
         </span>
       </div>
       <textarea

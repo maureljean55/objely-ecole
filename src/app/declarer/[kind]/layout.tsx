@@ -14,7 +14,7 @@ export default async function DeclarerLayout({ children, params }: LayoutProps<"
   if (kind !== "perdu" && kind !== "trouve") notFound();
 
   return (
-    <Screen variant="wizard">
+    <Screen variant="wizard" kind={kind}>
       <DeclarationProvider kind={kind}>
         <IdleGuard>{children}</IdleGuard>
       </DeclarationProvider>

@@ -4,60 +4,54 @@ import { ResetDraft } from "@/components/home/ResetDraft";
 import { Icon } from "@/components/kiosk/Icon";
 import { Screen } from "@/components/kiosk/Screen";
 
-const REASSURANCE = [
-  { icon: "bolt", title: "Rapide", hint: "Moins d'une minute", tone: "bg-selected text-blue-ink" },
-  { icon: "photo_camera", title: "Smartphone", hint: "Scan QR instantané", tone: "bg-tint-purple text-purple-ink" },
-  { icon: "shield", title: "Protégé", hint: "Données sécurisées", tone: "bg-selected text-blue-ink" },
-];
-
+// The two big doors take the two colours of the logo's rings: blue for the
+// person looking for something, violet for the person who found it.
 export default function HomePage() {
   return (
     <Screen variant="home">
       <ResetDraft />
-      <div className="mx-auto flex h-full w-full max-w-[1130px] gap-6 px-8 py-4">
-        <div className="w-5/12 shrink-0 animate-rise">
+      <div className="mx-auto flex h-full w-full max-w-[1130px] gap-8 px-8 py-5">
+        <div className="w-5/12 shrink-0">
           <Hero />
         </div>
 
-        <div className="flex min-w-0 flex-1 flex-col justify-between py-1">
-          <div className="animate-rise [animation-delay:60ms]">
-            <h1 className="text-display text-ink">
-              Perdu ou trouvé un objet <span className="block text-blue">au lycée ?</span>
-            </h1>
-            <p className="mt-3 text-body-lg text-slate">
-              Objely aide les élèves et le personnel à retrouver leurs affaires rapidement. Déclarez un objet en moins
-              d&apos;une minute : nous rapprochons les déclarations et vous alertons automatiquement.
+        <div className="flex min-w-0 flex-1 flex-col justify-between">
+          <div>
+            <h1 className="text-display text-ink">Vous avez perdu ou trouvé quelque chose ?</h1>
+            <p className="mt-4 text-body-xl text-slate">
+              Dites-nous ce que c&apos;est et où. La vie scolaire fait le lien entre ceux qui cherchent et ceux qui ont
+              trouvé. Une minute suffit.
             </p>
           </div>
 
-          <ul className="grid grid-cols-3 gap-3 animate-rise [animation-delay:120ms]">
-            {REASSURANCE.map((item) => (
-              <li key={item.title} className="rounded-card border border-line bg-white p-4 shadow-rest">
-                <span className={`mb-3 flex size-11 items-center justify-center rounded-xl ${item.tone}`}>
-                  <Icon name={item.icon} size={24} fill={item.icon === "shield"} />
-                </span>
-                <p className="text-h-md text-ink">{item.title}</p>
-                <p className="mt-0.5 text-label-sm font-medium text-slate">{item.hint}</p>
-              </li>
-            ))}
-          </ul>
-
-          <div className="grid grid-cols-2 gap-4 animate-rise [animation-delay:180ms]">
+          <div className="flex flex-col gap-4">
             <Link
               href="/declarer/perdu/informations"
-              className="press flex h-[132px] flex-col items-center justify-center gap-0.5 rounded-card bg-signature text-center text-white shadow-cta"
+              className="press flex h-[176px] items-center justify-between rounded-card bg-blue px-8 text-white"
             >
-              <Icon name="search" size={38} className="mb-0.5" />
-              <span className="text-h-md font-bold">J&apos;ai perdu un objet</span>
-              <span className="text-label-sm font-medium text-white/90">Faire une déclaration de perte</span>
+              <span>
+                <span className="block font-display text-[38px] font-extrabold leading-tight tracking-tight">
+                  J&apos;ai perdu un objet
+                </span>
+                <span className="mt-1 block text-body-lg text-white/90">Je le cherche</span>
+              </span>
+              <span className="flex size-16 items-center justify-center rounded-full bg-white text-blue">
+                <Icon name="arrow_forward" size={34} />
+              </span>
             </Link>
             <Link
               href="/declarer/trouve/informations"
-              className="press flex h-[132px] flex-col items-center justify-center gap-0.5 rounded-card border border-line bg-white text-center shadow-rest hover:border-line-strong"
+              className="press flex h-[176px] items-center justify-between rounded-card bg-purple px-8 text-white"
             >
-              <Icon name="volunteer_activism" fill size={38} className="mb-0.5 text-purple-ink" />
-              <span className="text-h-md font-bold text-ink">J&apos;ai trouvé un objet</span>
-              <span className="text-label-sm font-medium text-slate">Déposer à la vie scolaire</span>
+              <span>
+                <span className="block font-display text-[38px] font-extrabold leading-tight tracking-tight">
+                  J&apos;ai trouvé un objet
+                </span>
+                <span className="mt-1 block text-body-lg text-white/90">Je le dépose à la vie scolaire</span>
+              </span>
+              <span className="flex size-16 items-center justify-center rounded-full bg-white text-purple">
+                <Icon name="arrow_forward" size={34} />
+              </span>
             </Link>
           </div>
         </div>

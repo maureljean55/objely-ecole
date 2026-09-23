@@ -8,13 +8,14 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
 };
 
+// Flat, solid, in the accent of the side being filled in.
 const VARIANTS = {
-  primary: "bg-signature px-10 text-white shadow-cta",
-  secondary: "border-2 border-line bg-white px-8 text-ink hover:border-line-strong",
-  quiet: "px-5 text-slate hover:bg-white hover:text-ink",
+  primary: "bg-accent px-9 text-white",
+  secondary: "border-2 border-ink/80 bg-white px-7 text-ink",
+  quiet: "px-5 text-slate hover:text-ink",
 } as const;
 
-// 60px kiosk CTA. Everything tappable is at least 52px.
+// 60px kiosk button. Everything tappable is at least 52px.
 export function Button({
   variant = "primary",
   icon,

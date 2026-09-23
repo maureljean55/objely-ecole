@@ -38,25 +38,19 @@ export function WizardPage({ step, backHref, banner, back, next, status, childre
           type="button"
           aria-label="Étape précédente"
           onClick={() => router.push(backHref)}
-          className="press flex size-[52px] shrink-0 items-center justify-center rounded-full border border-line bg-white text-ink shadow-rest hover:border-line-strong"
+          className="press flex size-[52px] shrink-0 items-center justify-center rounded-xl border-2 border-line-strong bg-white text-ink"
         >
           <Icon name="arrow_back" size={26} />
         </button>
         <Stepper current={step} />
-        <button
-          type="button"
-          onClick={cancel}
-          className="press h-[52px] shrink-0 rounded-xl px-4 text-label-lg text-slate hover:text-ink"
-        >
+        <button type="button" onClick={cancel} className="press h-[52px] shrink-0 rounded-xl px-4 text-label-lg text-slate hover:text-ink">
           Annuler
         </button>
       </div>
 
       {banner}
 
-      <div key={step} className="min-h-0 flex-1 animate-rise">
-        {children}
-      </div>
+      <div className="min-h-0 flex-1">{children}</div>
 
       <div className="flex h-[60px] shrink-0 items-center justify-between gap-6">
         <Button variant="secondary" icon={back.icon} iconPosition="start" onClick={back.onClick} className="!px-7">
@@ -71,15 +65,11 @@ export function WizardPage({ step, backHref, banner, back, next, status, childre
   );
 }
 
-/** White Level-1 card that holds a step's content. */
+/** White card that holds a step's content. */
 export function StepCard({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <section className={`relative h-full overflow-hidden rounded-3xl border border-line bg-white p-6 shadow-rest ${className}`}>
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-blue-light/10 blur-2xl"
-      />
-      <div className="relative flex h-full flex-col">{children}</div>
+    <section className={`h-full overflow-hidden rounded-card border-2 border-line bg-white p-6 ${className}`}>
+      <div className="flex h-full flex-col">{children}</div>
     </section>
   );
 }

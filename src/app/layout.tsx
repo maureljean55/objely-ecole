@@ -1,13 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Atkinson_Hyperlegible_Next, Bricolage_Grotesque, IBM_Plex_Mono } from "next/font/google";
 import { KioskFrame } from "@/components/kiosk/KioskFrame";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
+// Body: Atkinson Hyperlegible, designed for legibility at a glance (a borne is read standing, at arm's length).
+const body = Atkinson_Hyperlegible_Next({ variable: "--font-body", subsets: ["latin"], display: "swap" });
+// Titles: Bricolage Grotesque, heavy and slightly quirky rather than neutral.
+const bricolage = Bricolage_Grotesque({ variable: "--font-bricolage", subsets: ["latin"], display: "swap" });
+// Numbers and labels that read like a printed ticket.
+const plexMono = IBM_Plex_Mono({ variable: "--font-plex-mono", subsets: ["latin"], weight: ["500", "600"], display: "swap" });
 
 export const metadata: Metadata = {
   title: "Objely École · Objets perdus et trouvés",
@@ -20,12 +21,12 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#f6f8fc",
+  themeColor: "#f1f2f6",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="fr" className={inter.variable}>
+    <html lang="fr" className={`${body.variable} ${bricolage.variable} ${plexMono.variable}`}>
       <body>
         <KioskFrame>{children}</KioskFrame>
       </body>

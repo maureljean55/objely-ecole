@@ -5,7 +5,6 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { KIOSK } from "@/lib/kiosk";
 import { useDeclaration } from "@/lib/declaration";
 import { Button } from "./Button";
-import { Icon } from "./Icon";
 
 const IdleContext = createContext<number>(KIOSK.idleSeconds);
 
@@ -52,19 +51,16 @@ export function IdleGuard({ children }: { children: ReactNode }) {
         <div
           role="alertdialog"
           aria-labelledby="idle-title"
-          className="absolute inset-0 z-50 flex items-center justify-center bg-ink/40 backdrop-blur-sm"
+          className="absolute inset-0 z-50 flex items-center justify-center bg-ink/60"
         >
-          <div className="flex w-[520px] animate-rise flex-col items-center gap-5 rounded-card border border-line bg-white p-10 text-center shadow-sheet">
-            <span className="flex size-16 items-center justify-center rounded-full bg-selected text-blue-ink">
-              <Icon name="timer" size={34} />
-            </span>
+          <div className="flex w-[520px] flex-col gap-5 rounded-card border-2 border-ink bg-white p-8 shadow-sheet">
             <div>
               <h2 id="idle-title" className="text-h-lg text-ink">
                 Vous êtes toujours là ?
               </h2>
-              <p className="mt-1 text-body-lg text-slate">
+              <p className="mt-2 text-body-lg text-slate">
                 Sans réponse, la borne efface votre saisie dans{" "}
-                <strong className="whitespace-nowrap tabular-nums text-ink">{remaining} s</strong>.
+                <strong className="whitespace-nowrap font-mono tabular-nums text-ink">{remaining} s</strong>.
               </p>
             </div>
             <Button onClick={touch} className="w-full">

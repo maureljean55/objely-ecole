@@ -8,7 +8,7 @@ import { CameraSheet } from "@/components/wizard/CameraSheet";
 import { PhoneSync } from "@/components/wizard/PhoneSync";
 import { RecapBanner, RecapPerson } from "@/components/wizard/RecapBanner";
 import { StepCard, WizardPage } from "@/components/wizard/WizardPage";
-import { CATEGORIES, KIND_COPY, PHOTO_SLOTS, useDeclaration } from "@/lib/declaration";
+import { KIND_COPY, PHOTO_SLOTS, useDeclaration } from "@/lib/declaration";
 import { submitDeclaration } from "@/lib/submit";
 
 function formatCountdown(seconds: number) {
@@ -33,7 +33,6 @@ export default function PhotosPage() {
   if (!ready || !hasObject) return null;
 
   const copy = KIND_COPY[kind];
-  const category = CATEGORIES.find((c) => c.id === d.category);
   const photoCount = d.photos.filter(Boolean).length;
   const firstEmpty = d.photos.findIndex((p) => !p);
 
@@ -56,20 +55,12 @@ export default function PhotosPage() {
       step={3}
       backHref={`${base}/objet`}
       banner={
-        <RecapBanner
-          action={
-            <span className="mr-2 flex items-center gap-1.5 rounded-full bg-selected px-3 py-1.5 text-label-sm text-blue-ink">
-              <span className="size-2 rounded-full bg-blue" />
-              Étape finale
-            </span>
-          }
-        >
+        <RecapBanner>
           <RecapPerson nom={d.nom} prenom={d.prenom} classe={d.classe} />
-          <span aria-hidden="true" className="h-5 w-px shrink-0 bg-line" />
-          <Icon name={category?.icon ?? "sell"} size={22} className="text-purple-ink" />
-          <span className="truncate text-body-md font-medium text-ink">
+          <span aria-hidden="true" className="h-5 w-0.5 shrink-0 bg-line" />
+          <span className="truncate font-semibold text-ink">
             {d.objectName}
-            {d.location && <span className="text-slate"> ({d.location})</span>}
+            {d.location && <span className="font-normal text-slate"> · {d.location}</span>}
           </span>
         </RecapBanner>
       }
@@ -98,80 +89,65 @@ export default function PhotosPage() {
             <h1 className="text-h-lg text-ink">Ajouter des photos</h1>
             <p className="mt-0.5 text-body-md text-slate">{copy.photosLead}</p>
           </div>
-          <span
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-label-sm tabular-nums ${
-              idleRemaining <= 30 ? "bg-warn/15 text-[#92580a]" : "bg-canvas text-slate ring-1 ring-line"
-            }`}
-          >
-            <Icon name="timer" size={18} />
-            Temps restant : <strong className="text-ink">{formatCountdown(idleRemaining)}</strong>
+          <span className={`shrink-0 text-label-sm ${idleRemaining <= 30 ? "text-warn" : "text-slate"}`}>
+            Temps restant{" "}
+            <span className="font-mono text-label-lg tabular-nums text-ink">{formatCountdown(idleRemaining)}</span>
           </span>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-cols-2 gap-5">
+        <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
           <PhoneSync />
 
-          <div className="flex h-full flex-col gap-3 rounded-2xl bg-canvas p-4 ring-1 ring-line">
-            <p className="text-label-sm uppercase tracking-wide text-ink">Option directe sur borne</p>
+          <div className="flex h-full flex-col gap-3 rounded-xl border-2 border-line p-4">
+            <p className="font-mono text-label-sm font-semibold uppercase tracking-wider text-accent">
+              Avec la caméra de la borne
+            </p>
             <button
               type="button"
               disabled={firstEmpty === -1}
               onClick={() => setCameraSlot(firstEmpty)}
-              className="press flex h-14 items-center justify-center gap-3 rounded-xl bg-white text-label-lg text-blue-ink shadow-rest ring-1 ring-line hover:ring-line-strong disabled:opacity-50"
+              className="press flex h-14 items-center justify-center gap-3 rounded-xl border-2 border-ink/80 bg-white text-label-lg text-ink disabled:opacity-40"
             >
-              <span className="flex size-9 items-center justify-center rounded-lg bg-selected">
-                <Icon name="photo_camera" size={22} />
-              </span>
-              Activer la webcam de la borne
+              <Icon name="photo_camera" size={24} />
+              Prendre une photo
             </button>
 
-            <div className="flex items-center gap-3 text-label-sm uppercase tracking-wide text-slate">
-              <span className="h-px flex-1 bg-line" />
-              Photos associées ({photoCount}/{PHOTO_SLOTS.length})
-              <span className="h-px flex-1 bg-line" />
-            </div>
+            <p className="font-mono text-label-sm tabular-nums text-slate">
+              {photoCount} / {PHOTO_SLOTS.length} photos
+            </p>
 
             <div className="grid flex-1 grid-cols-3 gap-3">
               {PHOTO_SLOTS.map((slot, i) => {
                 const photo = d.photos[i];
                 return photo ? (
-                  <div key={slot.label} className="relative overflow-hidden rounded-2xl shadow-rest">
+                  <div key={slot.label} className="relative overflow-hidden rounded-xl border-2 border-ink">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={photo} alt={slot.label} className="size-full object-cover" />
-                    <span className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-ink/70 px-2.5 py-1 text-label-sm text-white backdrop-blur">
-                      <Icon name="check_circle" size={16} />
-                      Photo {i + 1}
-                    </span>
                     <button
                       type="button"
                       aria-label={`Supprimer la photo ${i + 1}`}
                       onClick={() => setPhoto(i, null)}
-                      className="press absolute right-1.5 top-1.5 flex size-11 items-center justify-center rounded-xl bg-danger text-white shadow-rest"
+                      className="press absolute right-1.5 top-1.5 flex size-11 items-center justify-center rounded-lg bg-danger text-white"
                     >
                       <Icon name="delete" size={22} fill />
                     </button>
-                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/70 to-transparent px-3 pb-2 pt-6 text-label-sm text-white">
-                      {slot.label}
-                    </span>
+                    <span className="absolute inset-x-0 bottom-0 bg-ink/80 px-2.5 py-1.5 text-label-sm text-white">{slot.label}</span>
                   </div>
                 ) : (
                   <button
                     key={slot.label}
                     type="button"
                     onClick={() => setCameraSlot(i)}
-                    className="press flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-line-strong bg-white px-2 text-center hover:border-blue"
+                    className="press flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-line-strong px-2 text-center text-slate hover:border-ink hover:text-ink"
                   >
-                    <span className="flex size-11 items-center justify-center rounded-full bg-selected text-blue-ink">
-                      <Icon name={slot.icon} size={24} />
-                    </span>
-                    <span className="text-label-sm leading-tight text-ink">{slot.empty}</span>
+                    <Icon name={slot.icon} size={30} />
+                    <span className="text-label-sm leading-tight">{slot.empty}</span>
                   </button>
                 );
               })}
             </div>
 
-            <p className="flex items-start gap-2 rounded-xl bg-selected/70 px-3 py-2 text-label-sm font-medium text-slate">
-              <Icon name="shield" size={18} className="mt-px text-blue-ink" />
+            <p className="text-label-sm font-medium text-slate">
               Seule la vie scolaire voit vos photos. Évitez les visages et les documents personnels.
             </p>
           </div>

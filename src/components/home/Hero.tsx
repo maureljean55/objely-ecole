@@ -5,11 +5,11 @@ const ORBIT_OBJECTS = [
   { id: "earbuds", src: "/illustrations/splash/earbuds.png", alt: "Écouteurs", angle: 270 },
 ] as const;
 
-// The Objely app's splash, scaled ~1.1× (the original is 280px): same gradient,
+// The Objely app's splash, slightly smaller than the original (280px scene, 56px objects): same gradient,
 // same objects orbiting a pulsing magnifier.
-const SCENE = 310;
-const ORBIT_RADIUS = 132;
-const OBJECT_SIZE = 62;
+const SCENE = 270;
+const ORBIT_RADIUS = 114;
+const OBJECT_SIZE = 50;
 
 export function Hero() {
   return (
@@ -20,10 +20,10 @@ export function Hero() {
       <div className="flex flex-1 items-center justify-center">
         <div className="relative flex items-center justify-center" style={{ width: SCENE, height: SCENE }}>
           {/* Radar pings behind the magnifier */}
-          <span aria-hidden="true" className="radar-ping absolute size-[106px] rounded-full border border-blue-200/40" />
+          <span aria-hidden="true" className="radar-ping absolute size-[88px] rounded-full border border-blue-200/40" />
           <span
             aria-hidden="true"
-            className="radar-ping absolute size-[106px] rounded-full border border-blue-200/40"
+            className="radar-ping absolute size-[88px] rounded-full border border-blue-200/40"
             style={{ animationDelay: "1.3s" }}
           />
 
@@ -54,7 +54,7 @@ export function Hero() {
             src="/illustrations/splash/magnifier.png"
             alt=""
             draggable={false}
-            className="magnifier-pulse pointer-events-none relative w-[140px] select-none"
+            className="magnifier-pulse pointer-events-none relative w-[112px] select-none"
           />
         </div>
       </div>

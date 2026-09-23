@@ -4,8 +4,6 @@ import { ResetDraft } from "@/components/home/ResetDraft";
 import { Icon } from "@/components/kiosk/Icon";
 import { Screen } from "@/components/kiosk/Screen";
 
-// The two big doors take the two colours of the logo's rings: blue for the
-// person looking for something, violet for the person who found it.
 export default function HomePage() {
   return (
     <Screen variant="home">
@@ -17,40 +15,33 @@ export default function HomePage() {
 
         <div className="flex min-w-0 flex-1 flex-col justify-between">
           <div>
-            <h1 className="text-display text-ink">Vous avez perdu ou trouvé quelque chose ?</h1>
+            <h1 className="text-display text-ink">
+              Perdu ou trouvé un objet <span className="block text-blue">au lycée ?</span>
+            </h1>
             <p className="mt-4 text-body-xl text-slate">
-              Dites-nous ce que c&apos;est et où. La vie scolaire fait le lien entre ceux qui cherchent et ceux qui ont
-              trouvé. Une minute suffit.
+              Objely aide les élèves et le personnel à retrouver leurs affaires rapidement. Déclarez un objet en moins
+              d&apos;une minute : nous rapprochons les déclarations et vous alertons automatiquement.
             </p>
           </div>
 
-          <div className="flex flex-col gap-4">
-            <Link
-              href="/declarer/perdu/informations"
-              className="press flex h-[176px] items-center justify-between rounded-card bg-blue px-8 text-white"
-            >
-              <span>
-                <span className="block font-display text-[38px] font-extrabold leading-tight tracking-tight">
-                  J&apos;ai perdu un objet
-                </span>
-                <span className="mt-1 block text-body-lg text-white/90">Je le cherche</span>
+          <div className="flex flex-col gap-5 pb-2">
+            <Link href="/declarer/perdu/informations" className="action-card action-lost press">
+              <span className="action-icon">
+                <Icon name="sentiment_very_dissatisfied" fill size={42} className="action-glyph-lost" />
               </span>
-              <span className="flex size-16 items-center justify-center rounded-full bg-white text-blue">
-                <Icon name="arrow_forward" size={34} />
+              <span className="action-body">
+                <h2>J&apos;ai perdu un objet</h2>
+                <p>Faire une déclaration de perte</p>
               </span>
             </Link>
-            <Link
-              href="/declarer/trouve/informations"
-              className="press flex h-[176px] items-center justify-between rounded-card bg-purple px-8 text-white"
-            >
-              <span>
-                <span className="block font-display text-[38px] font-extrabold leading-tight tracking-tight">
-                  J&apos;ai trouvé un objet
-                </span>
-                <span className="mt-1 block text-body-lg text-white/90">Je le dépose à la vie scolaire</span>
+
+            <Link href="/declarer/trouve/informations" className="action-card action-found press">
+              <span className="action-icon">
+                <Icon name="handshake" fill size={42} className="action-glyph-found" />
               </span>
-              <span className="flex size-16 items-center justify-center rounded-full bg-white text-purple">
-                <Icon name="arrow_forward" size={34} />
+              <span className="action-body">
+                <h2>J&apos;ai trouvé un objet</h2>
+                <p>Déposer à la vie scolaire</p>
               </span>
             </Link>
           </div>

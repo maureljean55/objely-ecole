@@ -1,36 +1,25 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Objely École
 
-## Getting Started
+Borne tactile d'objets perdus et trouvés pour les lycées et universités.
+Conçue pour un iPad 11" en paysage (1194×834), mise à l'échelle sur tout écran.
 
-First, run the development server:
+## Démarrer
 
 ```bash
+cp .env.example .env.local   # renseigner les clés du projet Supabase objely-ecole
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Parcours
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`/` accueil → `/declarer/[perdu|trouve]/informations` → `/objet` → `/photos` → `/confirmation`,
+plus `/assistance` et `/rechercher`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## À savoir
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Design** : Inter, tokens dans `src/app/globals.css`, icônes Material Symbols auto-hébergées
+  (aucun appel à Google depuis la borne). Après avoir ajouté une icône : `node scripts/build-icon-font.mjs`.
+- **Inactivité** : après 90 s sans toucher l'écran, la saisie est effacée et la borne revient à l'accueil (`src/lib/kiosk.ts`).
+- **Pas encore branché** : l'enregistrement de la déclaration (`src/lib/submit.ts`), la page smartphone
+  `/depot/[session]` derrière le QR code et la recherche d'objets. Ils attendent le schéma Supabase.

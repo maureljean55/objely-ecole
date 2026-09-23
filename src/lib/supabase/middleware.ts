@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+let warnedMissingEnv = false;
+
 // Refreshes the Supabase session cookie on every request so Server
 // Components always see a valid session.
 export async function updateSession(request: NextRequest): Promise<{ response: NextResponse; userId: string | null }> {
@@ -11,7 +13,10 @@ export async function updateSession(request: NextRequest): Promise<{ response: N
   if (!url || !key) {
     // Missing config would otherwise throw on every request — let it through
     // unauthenticated instead of taking the whole app down.
-    console.error("Supabase env vars are not set; skipping session refresh.");
+    if (!warnedMissingEnv) {
+      warnedMissingEnv = true;
+      console.error("Supabase env vars are not set; skipping session refresh.");
+    }
     return { response: supabaseResponse, userId: null };
   }
 

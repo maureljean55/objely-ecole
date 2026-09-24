@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Atkinson_Hyperlegible_Next, Bricolage_Grotesque, Caveat, IBM_Plex_Mono } from "next/font/google";
 import { KioskFrame } from "@/components/kiosk/KioskFrame";
+import { KioskProvider } from "@/components/kiosk/KioskProvider";
 import "./globals.css";
 
 // Body: Atkinson Hyperlegible, designed for legibility at a glance (a borne is read standing, at arm's length).
@@ -30,7 +31,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fr" className={`${body.variable} ${bricolage.variable} ${plexMono.variable} ${caveat.variable}`}>
       <body>
-        <KioskFrame>{children}</KioskFrame>
+        <KioskFrame>
+          <KioskProvider>{children}</KioskProvider>
+        </KioskFrame>
       </body>
     </html>
   );

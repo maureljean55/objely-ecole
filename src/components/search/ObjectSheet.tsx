@@ -2,7 +2,7 @@
 
 import { Icon } from "../kiosk/Icon";
 import { CATEGORIES } from "@/lib/declaration";
-import { KIOSK } from "@/lib/kiosk";
+import { useKiosk } from "@/components/kiosk/KioskProvider";
 import type { ListedObject } from "@/lib/objects";
 
 export function formatDay(iso: string, month: "long" | "short" = "long") {
@@ -26,6 +26,7 @@ export function ObjectVisual({ object, iconSize, className = "" }: { object: Lis
 
 // Read-only detail: what it is, where it was found, and how to get it back.
 export function ObjectSheet({ object, onClose }: { object: ListedObject; onClose: () => void }) {
+  const kiosk = useKiosk();
   const category = CATEGORIES.find((c) => c.id === object.category);
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="object-title" className="absolute inset-0 z-40 flex items-center justify-center bg-ink/60">
@@ -64,8 +65,8 @@ export function ObjectSheet({ object, onClose }: { object: ListedObject; onClose
           </dl>
 
           <p className="mt-auto rounded-xl border-2 border-accent bg-white p-4 text-body-md text-ink">
-            <strong className="font-semibold">C&apos;est le vôtre ?</strong> Passez à la vie scolaire (
-            <span className="font-mono">{KIOSK.helpDesk.toLowerCase()}</span>) : on vous demandera de décrire l&apos;objet avant de vous
+            <strong className="font-semibold">C&apos;est le vôtre ?</strong> Passez à la vie scolaire
+            {kiosk.helpDesk && <> (<span className="font-mono">{kiosk.helpDesk.toLowerCase()}</span>)</>} : on vous demandera de décrire l&apos;objet avant de vous
             le rendre.
           </p>
         </div>

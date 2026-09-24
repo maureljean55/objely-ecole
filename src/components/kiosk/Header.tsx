@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { KIOSK } from "@/lib/kiosk";
+import { useKiosk } from "@/components/kiosk/KioskProvider";
 import { LogoMark } from "./LogoMark";
 
 const NAV = [
@@ -33,6 +33,7 @@ function useNow() {
 export function Header({ variant }: { variant: "home" | "wizard" }) {
   const pathname = usePathname();
   const now = useNow();
+  const kiosk = useKiosk();
 
   return (
     <header className="glass-bar absolute inset-x-8 top-2 z-20 flex h-[68px] items-center justify-between gap-6 rounded-[34px] px-6">
@@ -52,8 +53,8 @@ export function Header({ variant }: { variant: "home" | "wizard" }) {
         </span>
         <span aria-hidden="true" className="mx-1 h-8 w-0.5 rounded-full bg-ink/20" />
         <div className="leading-none">
-          <p className="text-[13px] font-semibold uppercase tracking-[0.16em] text-slate">{KIOSK.schoolType}</p>
-          <p className="mt-1 font-display text-[20px] font-bold tracking-tight text-ink">{KIOSK.schoolName}</p>
+          <p className="text-[13px] font-semibold uppercase tracking-[0.16em] text-slate">{kiosk.schoolType}</p>
+          <p className="mt-1 font-display text-[20px] font-bold tracking-tight text-ink">{kiosk.schoolName}</p>
         </div>
       </div>
 
@@ -83,7 +84,7 @@ export function Header({ variant }: { variant: "home" | "wizard" }) {
           <span className="inline-block text-label-sm font-medium text-slate first-letter:uppercase">{now?.date ?? " "}</span>
           <span className="font-mono text-[28px] font-semibold leading-none tabular-nums text-ink">{now?.time ?? "--:--"}</span>
         </p>
-        <p className="text-[13px] font-medium leading-none text-slate">{KIOSK.station}</p>
+        <p className="text-[13px] font-medium leading-none text-slate">{kiosk.station}</p>
       </div>
     </header>
   );

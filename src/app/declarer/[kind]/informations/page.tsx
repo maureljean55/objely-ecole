@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState, type RefObject } from "react";
-import { KIOSK } from "@/lib/kiosk";
+import { useKiosk } from "@/components/kiosk/KioskProvider";
 import { Icon } from "@/components/kiosk/Icon";
 import { Fieldset } from "@/components/wizard/Fieldset";
 import { TextField } from "@/components/wizard/Fields";
@@ -14,6 +14,7 @@ const CLASS_SUGGESTIONS = ["2nde", "1ère", "Terminale", "Personnel"];
 type Field = "nom" | "prenom" | "classe" | "telephone";
 
 export default function InformationsPage() {
+  const kiosk = useKiosk();
   const router = useRouter();
   const { kind, declaration: d, update, ready } = useDeclaration();
   const [touched, setTouched] = useState<Set<Field>>(new Set());
@@ -161,7 +162,7 @@ export default function InformationsPage() {
         <p className="mt-auto flex items-center gap-2 border-t-2 border-line pt-4 text-body-md text-slate">
           <Icon name="lock" size={20} />
           <span>
-            Vos coordonnées ne sont accessibles qu&apos;à l&apos;équipe de la vie scolaire du {KIOSK.school}.
+            Vos coordonnées ne sont accessibles qu&apos;à l&apos;équipe de la vie scolaire du {kiosk.school}.
           </span>
         </p>
       </StepCard>

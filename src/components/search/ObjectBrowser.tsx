@@ -5,7 +5,7 @@ import { Button } from "../kiosk/Button";
 import { Icon } from "../kiosk/Icon";
 import { CATEGORIES, type CategoryId } from "@/lib/declaration";
 import type { ListedObject } from "@/lib/objects";
-import { KIOSK } from "@/lib/kiosk";
+import { useKiosk } from "@/components/kiosk/KioskProvider";
 import { formatDay, ObjectSheet, ObjectVisual } from "./ObjectSheet";
 
 const PAGE_SIZE = 6;
@@ -14,6 +14,7 @@ const PAGE_SIZE = 6;
 const fold = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 export function ObjectBrowser({ objects, isDemo }: { objects: ListedObject[]; isDemo: boolean }) {
+  const kiosk = useKiosk();
   const [category, setCategory] = useState<CategoryId | "all">("all");
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
@@ -135,7 +136,7 @@ export function ObjectBrowser({ objects, isDemo }: { objects: ListedObject[]; is
 
       <div className="flex h-[60px] shrink-0 items-center justify-between gap-6">
         <p className="max-w-[520px] text-label-sm font-medium text-slate">
-          Vous reconnaissez votre objet ? Passez à la vie scolaire (<span className="font-mono">{KIOSK.helpDesk.toLowerCase()}</span>).
+          Vous reconnaissez votre objet ? Passez à la vie scolaire{kiosk.helpDesk && <> (<span className="font-mono">{kiosk.helpDesk.toLowerCase()}</span>)</>}.
           Vous pouvez seulement consulter cette liste.
         </p>
         <div className="flex items-center gap-4">

@@ -2,11 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { KIOSK } from "@/lib/kiosk";
+import { useKiosk } from "@/components/kiosk/KioskProvider";
+import { IDLE_WARNING_SECONDS } from "@/lib/kiosk";
 import { useDeclaration } from "@/lib/declaration";
 import { Button } from "./Button";
 
-const IdleContext = createContext<number>(KIOSK.idleSeconds);
+const IdleContext = createContext<number>(90);
 
 /** Seconds left before the borne wipes the form and returns to the home screen. */
 export function useIdleRemaining() {
@@ -18,20 +19,21 @@ export function useIdleRemaining() {
 export function IdleGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { reset } = useDeclaration();
+  const { idleSeconds } = useKiosk();
   const lastTouch = useRef(0);
-  const [remaining, setRemaining] = useState<number>(KIOSK.idleSeconds);
+  const [remaining, setRemaining] = useState<number>(idleSeconds);
 
   const touch = useCallback(() => {
     lastTouch.current = Date.now();
-    setRemaining(KIOSK.idleSeconds);
-  }, []);
+    setRemaining(idleSeconds);
+  }, [idleSeconds]);
 
   useEffect(() => {
     lastTouch.current = Date.now();
     const events = ["pointerdown", "keydown"] as const;
     events.forEach((e) => window.addEventListener(e, touch, { passive: true }));
     const id = setInterval(() => {
-      const left = KIOSK.idleSeconds - Math.floor((Date.now() - lastTouch.current) / 1000);
+      const left = idleSeconds - Math.floor((Date.now() - lastTouch.current) / 1000);
       setRemaining(Math.max(left, 0));
       if (left <= 0) {
         reset();
@@ -42,12 +44,12 @@ export function IdleGuard({ children }: { children: ReactNode }) {
       events.forEach((e) => window.removeEventListener(e, touch));
       clearInterval(id);
     };
-  }, [touch, reset, router]);
+  }, [touch, reset, router, idleSeconds]);
 
   return (
     <IdleContext.Provider value={remaining}>
       {children}
-      {remaining <= KIOSK.idleWarningSeconds && remaining > 0 && (
+      {remaining <= IDLE_WARNING_SECONDS && remaining > 0 && (
         <div
           role="alertdialog"
           aria-labelledby="idle-title"

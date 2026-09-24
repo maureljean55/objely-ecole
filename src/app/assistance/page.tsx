@@ -1,7 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { Icon } from "@/components/kiosk/Icon";
 import { Screen } from "@/components/kiosk/Screen";
-import { KIOSK } from "@/lib/kiosk";
+import { useKiosk } from "@/components/kiosk/KioskProvider";
 
 const STEPS = [
   { title: "Vous déclarez", text: "Objet perdu ou trouvé : trois étapes, moins d'une minute." },
@@ -10,6 +12,7 @@ const STEPS = [
 ];
 
 export default function AssistancePage() {
+  const kiosk = useKiosk();
   return (
     <Screen variant="wizard">
       <div className="mx-auto flex h-full w-full max-w-[1194px] flex-col gap-6 px-8 pb-6 pt-4">
@@ -31,13 +34,13 @@ export default function AssistancePage() {
         <div className="grid flex-1 grid-cols-2 gap-4">
           <div className="flex flex-col justify-center rounded-card bg-blue p-8 text-white">
             <p className="font-mono text-label-sm font-semibold uppercase tracking-wider text-white/85">Aide vie scolaire</p>
-            <p className="mt-1 font-display text-[52px] font-extrabold leading-none tracking-tight">{KIOSK.helpDesk}</p>
+            <p className="mt-1 font-display text-[52px] font-extrabold leading-none tracking-tight">{kiosk.helpDesk ?? "Vie scolaire"}</p>
             <p className="mt-3 text-body-lg text-white/90">Ou rendez-vous directement au bureau de la vie scolaire.</p>
           </div>
           <div className="flex flex-col justify-center rounded-card border-2 border-line bg-white p-8">
             <p className="text-h-md text-ink">Vos données restent au lycée</p>
             <p className="mt-2 text-body-lg text-slate">
-              Seule l&apos;équipe de la vie scolaire du {KIOSK.school} voit vos coordonnées et vos photos.
+              Seule l&apos;équipe de la vie scolaire du {kiosk.school} voit vos coordonnées et vos photos.
             </p>
           </div>
         </div>

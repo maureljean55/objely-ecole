@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/kiosk/Button";
 import { Ticket } from "@/components/wizard/Ticket";
-import { KIOSK } from "@/lib/kiosk";
+import { useKiosk } from "@/components/kiosk/KioskProvider";
 import { useDeclaration } from "@/lib/declaration";
 
 const RETURN_AFTER = 20;
@@ -21,6 +21,7 @@ const NEXT_STEPS = {
 } as const;
 
 export default function ConfirmationPage() {
+  const kiosk = useKiosk();
   const router = useRouter();
   const { kind, declaration: d, ready, reset } = useDeclaration();
   const [left, setLeft] = useState(RETURN_AFTER);
@@ -78,7 +79,11 @@ export default function ConfirmationPage() {
             ))}
           </ol>
           <p className="text-body-md text-slate">
-            Besoin d&apos;aide ? Vie scolaire, <span className="font-mono text-ink">{KIOSK.helpDesk.toLowerCase()}</span>.
+            {kiosk.helpDesk ? (
+              <>Besoin d&apos;aide ? Vie scolaire, <span className="font-mono text-ink">{kiosk.helpDesk.toLowerCase()}</span>.</>
+            ) : (
+              "Besoin d'aide ? Adressez-vous à la vie scolaire."
+            )}
           </p>
         </div>
 

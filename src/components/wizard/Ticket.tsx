@@ -1,5 +1,7 @@
+"use client";
+
 import type { Kind } from "@/lib/declaration";
-import { KIOSK } from "@/lib/kiosk";
+import { useKiosk } from "@/components/kiosk/KioskProvider";
 
 // A deterministic barcode from the reference, so the same dossier always prints the same bars.
 function bars(reference: string) {
@@ -37,6 +39,7 @@ export function Ticket({
   person: string;
   printedAt: string;
 }) {
+  const { school } = useKiosk();
   return (
     <div className="w-[380px] rotate-[1.4deg] [filter:drop-shadow(0_1px_1px_rgba(16,26,54,0.18))_drop-shadow(0_16px_14px_rgba(16,26,54,0.2))]">
       <div className="ticket relative animate-print bg-white">
@@ -44,7 +47,7 @@ export function Ticket({
 
         <div className="h-[164px] px-7 pt-5">
           <p className="font-mono text-label-sm font-medium uppercase tracking-wider text-slate">
-            {KIOSK.school} · {kind === "perdu" ? "Objet perdu" : "Objet trouvé"}
+            {school} · {kind === "perdu" ? "Objet perdu" : "Objet trouvé"}
           </p>
           <p className="mt-3 font-mono text-[15px] font-medium uppercase tracking-wider text-slate">Dossier n°</p>
           <p className="font-mono text-[50px] font-semibold leading-none tracking-tight text-ink">{reference}</p>

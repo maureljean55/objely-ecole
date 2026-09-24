@@ -39,7 +39,17 @@ export function Header({ variant }: { variant: "home" | "wizard" }) {
       {/* Brand + establishment */}
       <div className="flex items-center gap-3">
         <LogoMark height={42} priority />
-        <span className="font-display text-[30px] font-extrabold leading-none tracking-tight text-ink">Objely</span>
+        <span
+          className="font-display text-[30px] font-extrabold leading-none tracking-tight"
+          style={{
+            backgroundImage: "linear-gradient(90deg, #087be8, #735af4, #a34ee9)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          Objely
+        </span>
         <span aria-hidden="true" className="mx-1 h-8 w-0.5 rounded-full bg-ink/20" />
         <div className="leading-none">
           <p className="text-[13px] font-semibold uppercase tracking-[0.16em] text-slate">{KIOSK.schoolType}</p>

@@ -55,7 +55,7 @@ export default function ConfirmationPage() {
   if (!done || !d.reference) return null;
 
   return (
-    <div className="mx-auto flex h-full w-full max-w-[1130px] flex-col gap-3 px-8 py-4">
+    <div className="mx-auto flex h-full w-full max-w-[1194px] flex-col gap-3 px-8 pb-5 pt-3">
       <section className="grid min-h-0 flex-1 grid-cols-[1fr_400px] items-center gap-10">
         <div className="flex flex-col gap-7">
           <span className="inline-block w-fit animate-stamp rounded-md border-[4px] border-accent px-5 py-1.5 font-mono text-[26px] font-semibold uppercase tracking-[0.18em] text-accent">

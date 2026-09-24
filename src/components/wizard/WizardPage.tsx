@@ -32,7 +32,7 @@ export function WizardPage({ step, backHref, banner, back, next, status, childre
   };
 
   return (
-    <div className="mx-auto flex h-full w-full max-w-[1130px] flex-col gap-3 px-8 py-3">
+    <div className="mx-auto flex h-full w-full max-w-[1194px] flex-col gap-3 px-8 pb-5 pt-3">
       <div className="flex h-[52px] shrink-0 items-center gap-6">
         <button
           type="button"

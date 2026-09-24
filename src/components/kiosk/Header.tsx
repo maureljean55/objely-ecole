@@ -35,7 +35,7 @@ export function Header({ variant }: { variant: "home" | "wizard" }) {
   const now = useNow();
 
   return (
-    <header className="glass-bar absolute inset-x-4 top-2 z-20 flex h-[68px] items-center justify-between gap-6 rounded-[34px] px-6">
+    <header className="glass-bar absolute inset-x-8 top-2 z-20 flex h-[68px] items-center justify-between gap-6 rounded-[34px] px-6">
       {/* Brand + establishment */}
       <div className="flex items-center gap-3">
         <LogoMark height={42} priority />

@@ -12,7 +12,7 @@ const STEPS = [
 export default function AssistancePage() {
   return (
     <Screen variant="wizard">
-      <div className="mx-auto flex h-full w-full max-w-[1130px] flex-col gap-6 px-8 py-6">
+      <div className="mx-auto flex h-full w-full max-w-[1194px] flex-col gap-6 px-8 pb-6 pt-4">
         <div>
           <h1 className="text-h-xl text-ink">Assistance</h1>
           <p className="mt-1 text-body-lg text-slate">Comment marche la borne, et qui prévenir si vous êtes bloqué.</p>

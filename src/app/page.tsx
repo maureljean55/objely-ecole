@@ -8,7 +8,7 @@ export default function HomePage() {
   return (
     <Screen variant="home">
       <ResetDraft />
-      <div className="mx-auto flex h-full w-full max-w-[1130px] gap-8 px-8 py-5">
+      <div className="mx-auto flex h-full w-full max-w-[1194px] gap-8 px-8 pb-5 pt-3">
         <div className="w-5/12 shrink-0">
           <Hero />
         </div>

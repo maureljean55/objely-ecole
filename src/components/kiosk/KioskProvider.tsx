@@ -9,9 +9,9 @@ import { fetchConfig, pairKiosk, readPaired, savePaired, type PairResult } from 
 const HEARTBEAT_MS = 4 * 60_000;
 
 type Status = "checking" | "unpaired" | "ready";
-type Ctx = { config: KioskConfig | null; pair: (code: string) => Promise<PairResult> };
+type Ctx = { config: KioskConfig | null; token: string | null; pair: (code: string) => Promise<PairResult> };
 
-const KioskContext = createContext<Ctx>({ config: null, pair: async () => ({ ok: false, reason: "network" }) });
+const KioskContext = createContext<Ctx>({ config: null, token: null, pair: async () => ({ ok: false, reason: "network" }) });
 
 /** This borne's settings. Only available once paired: every page except /connexion is behind that. */
 export function useKiosk(): KioskConfig {
@@ -21,11 +21,19 @@ export function useKiosk(): KioskConfig {
 }
 export const usePairing = () => useContext(KioskContext).pair;
 
+/** The borne's own secret, used to call the database. Only on pages shown after pairing. */
+export function useKioskToken(): string {
+  const { token } = useContext(KioskContext);
+  if (!token) throw new Error("useKioskToken must be used on a page shown after pairing");
+  return token;
+}
+
 export function KioskProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [status, setStatus] = useState<Status>("checking");
   const [config, setConfig] = useState<KioskConfig | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
   // On start: use the saved pairing right away (a borne must open even if the network is down), then check it.
   useEffect(() => {
@@ -37,6 +45,7 @@ export function KioskProvider({ children }: { children: ReactNode }) {
       return;
     }
     setConfig(saved.config);
+    setToken(saved.token);
     setStatus("ready");
     /* eslint-enable react-hooks/set-state-in-effect */
 
@@ -51,6 +60,7 @@ export function KioskProvider({ children }: { children: ReactNode }) {
         // The borne was removed in the administration: back to the code screen.
         savePaired(null);
         setConfig(null);
+        setToken(null);
         setStatus("unpaired");
       }
     };
@@ -66,6 +76,7 @@ export function KioskProvider({ children }: { children: ReactNode }) {
     const result = await pairKiosk(code);
     if (result.ok) {
       setConfig(result.paired.config);
+      setToken(result.paired.token);
       setStatus("ready");
     }
     return result;
@@ -80,5 +91,5 @@ export function KioskProvider({ children }: { children: ReactNode }) {
   // Nothing of the borne is shown before it is paired (and no flash of the wrong screen while redirecting).
   const visible = status === "unpaired" ? onCode : status === "ready" ? !onCode : false;
 
-  return <KioskContext.Provider value={{ config, pair }}>{visible ? children : null}</KioskContext.Provider>;
+  return <KioskContext.Provider value={{ config, token, pair }}>{visible ? children : null}</KioskContext.Provider>;
 }

@@ -42,5 +42,8 @@ Le schéma partagé par la borne et l'espace d'administration est dans
 - La borne n'accède **jamais** aux tables : uniquement aux fonctions `pair_kiosk`, `kiosk_config`,
   `kiosk_submit_declaration` et `kiosk_list_objects`, avec un jeton propre à chaque borne (stocké haché).
 - Un objet ne passe à « rendu » que par `restitute_object()`, qui exige la vérification d'identité.
+- **Codes d'appairage** : chacun est conservé dans `kiosk_pairing_codes` (auteur, borne, expiration, date d'utilisation), même après usage.
+- **Déclarations** : envoyées par la borne avec `kiosk_submit_declaration` (référence `DEC-…` donnée par la base, photos incluses).
+- **Recherche** : la borne lit les objets en stock avec `kiosk_list_objects` (rien sur qui les a trouvés ou réclamés).
 - Créer un établissement et son premier administrateur : `select public.bootstrap_organization('Lycée …', 'lycee', 'admin@…', 'Nom Prénom')`
   (clé service uniquement). Il rattache ensuite son compte à son e-mail via `claim_membership()`.

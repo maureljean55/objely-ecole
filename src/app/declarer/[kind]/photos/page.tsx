@@ -9,6 +9,7 @@ import { PhoneSync } from "@/components/wizard/PhoneSync";
 import { RecapBanner, RecapPerson } from "@/components/wizard/RecapBanner";
 import { StepCard, WizardPage } from "@/components/wizard/WizardPage";
 import { KIND_COPY, PHOTO_SLOTS, useDeclaration } from "@/lib/declaration";
+import { useKioskToken } from "@/components/kiosk/KioskProvider";
 import { submitDeclaration } from "@/lib/submit";
 
 function formatCountdown(seconds: number) {
@@ -20,6 +21,7 @@ export default function PhotosPage() {
   const router = useRouter();
   const { kind, declaration: d, update, setPhoto, ready } = useDeclaration();
   const idleRemaining = useIdleRemaining();
+  const token = useKioskToken();
   const [cameraSlot, setCameraSlot] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,14 +41,14 @@ export default function PhotosPage() {
   const submit = async () => {
     setSubmitting(true);
     setError(null);
-    try {
-      const reference = await submitDeclaration(kind, d);
-      update({ reference });
-      router.push(`${base}/confirmation`);
-    } catch {
-      setError("La déclaration n'a pas pu être envoyée. Touchez « Valider la déclaration » pour réessayer.");
+    const result = await submitDeclaration(token, kind, d);
+    if (!result.ok) {
+      setError(result.error);
       setSubmitting(false);
+      return;
     }
+    update({ reference: result.reference });
+    router.push(`${base}/confirmation`);
   };
 
   return (

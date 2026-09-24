@@ -13,7 +13,7 @@ const PAGE_SIZE = 6;
 // Lower-case and strip accents so "cles" finds "Clés".
 const fold = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
-export function ObjectBrowser({ objects, isDemo }: { objects: ListedObject[]; isDemo: boolean }) {
+export function ObjectBrowser({ objects }: { objects: ListedObject[] }) {
   const kiosk = useKiosk();
   const [category, setCategory] = useState<CategoryId | "all">("all");
   const [query, setQuery] = useState("");
@@ -45,7 +45,6 @@ export function ObjectBrowser({ objects, isDemo }: { objects: ListedObject[]; is
           <h1 className="text-h-lg text-ink">Objets retrouvés</h1>
           <p className="font-mono text-label-sm text-slate">
             {filtered.length} {filtered.length > 1 ? "objets" : "objet"} à récupérer à la vie scolaire
-            {isDemo && <span className="text-warn"> · données de démonstration</span>}
           </p>
         </div>
 

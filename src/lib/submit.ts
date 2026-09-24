@@ -11,7 +11,7 @@ const MESSAGES: [RegExp, string][] = [
   [/missing_fields|invalid_category|invalid_kind/, "Une information obligatoire manque. Revenez aux étapes précédentes."],
 ];
 
-/** Sends the declaration to the establishment's database. The reference on the ticket (DEC-1001…) comes from the database. */
+/** Sends the declaration to the establishment's database. The reference on the ticket (#DL482: initials + 3 random digits) comes from the database. */
 export async function submitDeclaration(token: string, kind: Kind, d: Declaration): Promise<SubmitResult> {
   const db = getSupabase();
   if (!db) return { ok: false, error: "La borne n'est pas configurée." };

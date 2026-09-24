@@ -67,15 +67,16 @@ export default function SuiviPage() {
     return () => clearTimeout(id);
   }, [tracked]);
 
-  const digits = reference.replace(/\D/g, "");
-  const canSubmit = digits.length >= 3 && lastName.trim().length > 0 && !busy;
+  // "#DL482" (or an older "DEC-1042"): letters and digits only are sent, the database adds back the format.
+  const typed = reference.replace(/[^A-Za-z0-9]/g, "");
+  const canSubmit = typed.length >= 4 && lastName.trim().length > 0 && !busy;
 
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (!canSubmit) return;
     setBusy(true);
     setError(null);
-    const result = await trackDeclaration(token, digits, lastName);
+    const result = await trackDeclaration(token, typed, lastName);
     setBusy(false);
     if (result.ok) setTracked(result.tracked);
     else {
@@ -106,13 +107,15 @@ export default function SuiviPage() {
             inputRef={refInput}
             value={reference}
             onChange={(v) => {
-              setReference(v.replace(/\D/g, "").slice(0, 6));
+              // Shown as typed on the ticket: "#" + capitals, whatever the student types or leaves out.
+              const chars = v.replace(/[^A-Za-z0-9-]/g, "").toUpperCase().slice(0, 9);
+              setReference(chars && !chars.startsWith("DEC") ? `#${chars}` : chars);
               setError(null);
             }}
             icon="confirmation_number"
-            inputMode="numeric"
-            placeholder="1042"
-            aside="Ex. : DEC-1042"
+            autoCapitalize="characters"
+            placeholder="#DL482"
+            aside="2 lettres + 3 chiffres"
             autoFocus
             className="font-mono tracking-[0.08em]"
           />
@@ -152,7 +155,7 @@ function Placeholder() {
       </span>
       <p className="text-h-lg text-ink">Où en est votre objet ?</p>
       <p className="text-body-lg text-slate">
-        Tapez le numéro de votre ticket (par exemple <span className="whitespace-nowrap font-mono font-semibold text-ink">DEC-1042</span>) et votre nom de famille : vous verrez
+        Tapez le numéro de votre ticket (par exemple <span className="whitespace-nowrap font-mono font-semibold text-ink">#DL482</span>) et votre nom de famille : vous verrez
         tout de suite si votre objet a été retrouvé.
       </p>
     </div>

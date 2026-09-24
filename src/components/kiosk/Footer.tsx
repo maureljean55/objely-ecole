@@ -14,13 +14,13 @@ export function Footer({ variant }: { variant: "home" | "wizard" }) {
     <footer className="flex h-16 shrink-0 items-center px-8 pb-1.5 pt-1">
       <div className="glass-bar relative flex h-[52px] w-full items-center justify-between gap-6 rounded-full pl-1.5 pr-6">
         {variant === "home" ? (
-          // What students most need to know: how they get their object back. Opens the Assistance page.
-          <Link href="/assistance" className="press group flex min-w-0 items-center gap-3 whitespace-nowrap rounded-full pr-3 text-label-md text-ink">
+          // Once declared, a student's first question is "has it been found?": let them check with their ticket.
+          <Link href="/suivi" className="press group flex min-w-0 items-center gap-3 whitespace-nowrap rounded-full pr-3 text-label-md text-ink">
             <Chip>
-              <Icon name="help" size={20} />
+              <Icon name="confirmation_number" size={20} />
             </Chip>
             <span>
-              Comment récupérer votre objet ? <span className="text-slate">Les 3 étapes, expliquées</span>
+              Déjà déclaré ? <span className="text-slate">Suivez votre objet avec le n° de votre ticket</span>
             </span>
             <Icon name="arrow_forward" size={18} className="text-accent transition-transform group-active:translate-x-0.5" />
           </Link>

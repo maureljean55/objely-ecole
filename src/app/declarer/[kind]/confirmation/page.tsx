@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/kiosk/Button";
+import { Icon } from "@/components/kiosk/Icon";
 import { Ticket } from "@/components/wizard/Ticket";
-import { useKiosk } from "@/components/kiosk/KioskProvider";
 import { useDeclaration } from "@/lib/declaration";
 
 const RETURN_AFTER = 20;
@@ -21,7 +21,6 @@ const NEXT_STEPS = {
 } as const;
 
 export default function ConfirmationPage() {
-  const kiosk = useKiosk();
   const router = useRouter();
   const { kind, declaration: d, ready, reset } = useDeclaration();
   const [left, setLeft] = useState(RETURN_AFTER);
@@ -78,12 +77,12 @@ export default function ConfirmationPage() {
               </li>
             ))}
           </ol>
-          <p className="text-body-md text-slate">
-            {kiosk.helpDesk ? (
-              <>Besoin d&apos;aide ? Vie scolaire, <span className="font-mono text-ink">{kiosk.helpDesk.toLowerCase()}</span>.</>
-            ) : (
-              "Besoin d'aide ? Adressez-vous à la vie scolaire."
-            )}
+          <p className="flex items-center gap-2 text-body-md text-slate">
+            <Icon name="confirmation_number" size={20} className="text-accent" />
+            <span>
+              Notez ou photographiez le n° <span className="font-mono font-semibold text-ink">{d.reference}</span> : il permet de suivre votre
+              déclaration depuis la borne, dans « Suivre ».
+            </span>
           </p>
         </div>
 

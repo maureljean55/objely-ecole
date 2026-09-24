@@ -9,6 +9,7 @@ import { LogoMark } from "./LogoMark";
 const NAV = [
   { href: "/", label: "Déclarer un objet", match: (p: string) => p === "/" || p.startsWith("/declarer") },
   { href: "/rechercher", label: "Rechercher", match: (p: string) => p.startsWith("/rechercher") },
+  { href: "/suivi", label: "Suivre", match: (p: string) => p.startsWith("/suivi") },
   { href: "/assistance", label: "Assistance", match: (p: string) => p.startsWith("/assistance") },
 ];
 

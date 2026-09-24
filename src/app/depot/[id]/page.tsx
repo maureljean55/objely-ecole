@@ -37,8 +37,12 @@ export default function DepotPage() {
   const { id } = useParams<{ id: string }>();
   const [phase, setPhase] = useState<Phase>("loading");
   const [session, setSession] = useState<PhoneSession | null>(null);
+  // Photos taken or picked on the phone, waiting for "Envoyer"; then those the borne has received.
+  const [pending, setPending] = useState<string[]>([]);
   const [sent, setSent] = useState<string[]>([]);
+  const [preparing, setPreparing] = useState(false);
   const [sending, setSending] = useState(false);
+  const [justSent, setJustSent] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
@@ -58,33 +62,46 @@ export default function DepotPage() {
     void load();
   }, [load]);
 
-  const count = (session?.count ?? 0) + sent.length;
+  const received = (session?.count ?? 0) + sent.length;
   const max = session?.max ?? 3;
-  const full = count >= max;
+  const room = max - received - pending.length;
+  const busy = preparing || sending;
 
+  // Picking only prepares the photos: nothing leaves the phone before "Envoyer".
   const onFiles = async (e: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []).slice(0, max - count);
+    const files = Array.from(e.target.files ?? []).slice(0, Math.max(room, 0));
     e.target.value = "";
     if (files.length === 0) return;
-    setSending(true);
+    setPreparing(true);
     setError(null);
+    setJustSent(0);
     for (const file of files) {
       const data = await toJpeg(file);
-      if (!data) {
-        setError("Cette image n'a pas pu être lue. Essayez une autre photo.");
-        continue;
-      }
-      const result = await uploadPhoto(id, data);
-      if (result.ok) {
-        setSent((prev) => [...prev, data]);
-        continue;
-      }
-      if (result.reason === "invalid_session") setPhase("invalid");
-      else if (result.reason === "too_many_photos") setError(`La borne a déjà reçu ${max} photos.`);
-      else if (result.reason === "invalid_photo") setError("Cette image n'est pas acceptée. Essayez une autre photo.");
-      else setError("L'envoi n'a pas abouti. Vérifiez votre connexion et réessayez.");
-      break;
+      if (data) setPending((prev) => [...prev, data]);
+      else setError("Cette image n'a pas pu être lue. Essayez une autre photo.");
     }
+    setPreparing(false);
+  };
+
+  const send = async () => {
+    if (pending.length === 0) return;
+    setSending(true);
+    setError(null);
+    let delivered = 0;
+    for (const data of pending) {
+      const result = await uploadPhoto(id, data);
+      if (!result.ok) {
+        if (result.reason === "invalid_session") setPhase("invalid");
+        else if (result.reason === "too_many_photos") setError(`La borne a déjà reçu ${max} photos.`);
+        else if (result.reason === "invalid_photo") setError("Une image n'est pas acceptée. Retirez-la et réessayez.");
+        else setError("L'envoi n'a pas abouti. Vérifiez votre connexion et appuyez de nouveau sur Envoyer.");
+        break;
+      }
+      delivered++;
+      setSent((prev) => [...prev, data]);
+      setPending((prev) => prev.slice(1));
+    }
+    setJustSent(delivered);
     setSending(false);
   };
 
@@ -129,55 +146,98 @@ export default function DepotPage() {
         {phase === "ready" && (
           <>
             <div>
-              <h1 className="text-h-lg text-ink">Envoyer une photo à la borne</h1>
+              <h1 className="text-h-lg text-ink">Photos pour la borne</h1>
               <p className="mt-1 text-body-md text-slate">
-                Photographiez l&apos;objet : la photo apparaît sur la borne en quelques secondes.
+                Prenez ou choisissez vos photos, vérifiez-les, puis appuyez sur Envoyer : elles arrivent sur le formulaire de la borne.
               </p>
             </div>
 
             <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={onFiles} />
             <input ref={galleryRef} type="file" accept="image/*" multiple className="hidden" onChange={onFiles} />
 
-            <div className="flex flex-col gap-3">
+            <div className="flex gap-3">
               <button
                 type="button"
-                disabled={full || sending}
+                disabled={room <= 0 || busy}
                 onClick={() => cameraRef.current?.click()}
-                className="press flex h-14 items-center justify-center gap-3 rounded-xl bg-accent text-label-lg text-white disabled:opacity-40"
+                className="press flex h-14 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-ink/80 bg-white text-label-lg text-ink disabled:opacity-40"
               >
-                <Icon name="photo_camera" size={24} />
-                {sending ? "Envoi…" : "Prendre une photo"}
+                <Icon name="photo_camera" size={22} />
+                Prendre
               </button>
               <button
                 type="button"
-                disabled={full || sending}
+                disabled={room <= 0 || busy}
                 onClick={() => galleryRef.current?.click()}
-                className="press flex h-14 items-center justify-center gap-3 rounded-xl border-2 border-ink/80 bg-white text-label-lg text-ink disabled:opacity-40"
+                className="press flex h-14 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-ink/80 bg-white text-label-lg text-ink disabled:opacity-40"
               >
-                <Icon name="photo_library" size={24} />
-                Choisir dans la galerie
+                <Icon name="photo_library" size={22} />
+                Galerie
               </button>
             </div>
 
-            <p role="status" className={`text-label-md font-medium ${full ? "text-ok" : "text-slate"}`}>
-              {full
-                ? `C'est complet : ${max} photos envoyées. Retournez à la borne pour valider.`
-                : `${count} / ${max} photos envoyées`}
+            {(pending.length > 0 || preparing) && (
+              <section className="flex flex-col gap-3">
+                <p className="text-label-md font-semibold text-ink">À envoyer</p>
+                <div className="grid grid-cols-3 gap-3">
+                  {pending.map((src, i) => (
+                    <div key={`${i}-${src.length}`} className="relative aspect-square overflow-hidden rounded-xl border-2 border-accent">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={src} alt={`Photo ${i + 1} à envoyer`} className="size-full object-cover" />
+                      <button
+                        type="button"
+                        disabled={sending}
+                        aria-label={`Retirer la photo ${i + 1}`}
+                        onClick={() => setPending((prev) => prev.filter((_, j) => j !== i))}
+                        className="press absolute right-1 top-1 flex size-8 items-center justify-center rounded-full bg-ink/75 text-white"
+                      >
+                        <Icon name="close" size={18} />
+                      </button>
+                    </div>
+                  ))}
+                  {preparing && <div className="aspect-square animate-pulse rounded-xl bg-line" />}
+                </div>
+              </section>
+            )}
+
+            <button
+              type="button"
+              disabled={pending.length === 0 || busy}
+              onClick={() => void send()}
+              className="press flex h-14 items-center justify-center gap-3 rounded-xl bg-accent text-label-lg text-white disabled:opacity-40"
+            >
+              <Icon name="send" size={22} />
+              {sending
+                ? "Envoi…"
+                : pending.length > 0
+                  ? `Envoyer ${pending.length > 1 ? `les ${pending.length} photos` : "la photo"} à la borne`
+                  : "Envoyer à la borne"}
+            </button>
+
+            <p role="status" className={`text-label-md font-medium ${justSent > 0 ? "text-ok" : "text-slate"}`}>
+              {justSent > 0
+                ? `Envoyé ! ${justSent > 1 ? `Les ${justSent} photos sont` : "La photo est"} sur le formulaire de la borne.`
+                : received >= max
+                  ? `La borne a reçu ses ${max} photos. Retournez-y pour valider.`
+                  : `${received} / ${max} photos reçues par la borne`}
             </p>
             {error && <p role="alert" className="text-label-md text-danger">{error}</p>}
 
             {sent.length > 0 && (
-              <div className="grid grid-cols-3 gap-3">
-                {sent.map((src, i) => (
-                  <div key={i} className="relative aspect-square overflow-hidden rounded-xl border-2 border-ink">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt={`Photo ${i + 1} envoyée`} className="size-full object-cover" />
-                    <span className="absolute right-1 top-1 flex size-6 items-center justify-center rounded-full bg-ok text-white">
-                      <Icon name="check" size={16} />
-                    </span>
-                  </div>
-                ))}
-              </div>
+              <section className="flex flex-col gap-3">
+                <p className="text-label-md font-semibold text-ink">Envoyées</p>
+                <div className="grid grid-cols-3 gap-3">
+                  {sent.map((src, i) => (
+                    <div key={i} className="relative aspect-square overflow-hidden rounded-xl border-2 border-ink">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={src} alt={`Photo ${i + 1} envoyée`} className="size-full object-cover" />
+                      <span className="absolute right-1 top-1 flex size-6 items-center justify-center rounded-full bg-ok text-white">
+                        <Icon name="check" size={16} />
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </section>
             )}
 
             <p className="text-label-sm text-slate">

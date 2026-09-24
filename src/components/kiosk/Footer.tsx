@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useKiosk } from "@/components/kiosk/KioskProvider";
 import { VERSION } from "@/lib/kiosk";
 import { Icon } from "./Icon";
@@ -13,12 +14,16 @@ export function Footer({ variant }: { variant: "home" | "wizard" }) {
     <footer className="flex h-16 shrink-0 items-center px-8 pb-1.5 pt-1">
       <div className="glass-bar relative flex h-[52px] w-full items-center justify-between gap-6 rounded-full pl-1.5 pr-6">
         {variant === "home" ? (
-          <p className="flex min-w-0 items-center gap-3 whitespace-nowrap text-label-md text-ink">
+          // What students most need to know: how they get their object back. Opens the Assistance page.
+          <Link href="/assistance" className="press group flex min-w-0 items-center gap-3 whitespace-nowrap rounded-full pr-3 text-label-md text-ink">
             <Chip>
-              <Icon name="touch_app" size={20} />
+              <Icon name="help" size={20} />
             </Chip>
-            <span>Touchez un bouton pour commencer</span>
-          </p>
+            <span>
+              Comment récupérer votre objet ? <span className="text-slate">Les 3 étapes, expliquées</span>
+            </span>
+            <Icon name="arrow_forward" size={18} className="text-accent transition-transform group-active:translate-x-0.5" />
+          </Link>
         ) : (
           <p className="flex min-w-0 items-center gap-3 whitespace-nowrap text-label-md text-ink">
             <Chip>

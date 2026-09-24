@@ -1,8 +1,11 @@
 "use client";
 
 import QRCode from "qrcode";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useIdleTouch } from "@/components/kiosk/IdleGuard";
+import { useKioskToken } from "@/components/kiosk/KioskProvider";
 import { LogoMark } from "../kiosk/LogoMark";
+import { createPhotoSession, fetchSessionPhoto, sessionStatus } from "@/lib/photoSession";
 
 const STEPS = [
   "Scannez le QR code avec l'appareil photo de votre téléphone.",
@@ -10,31 +13,89 @@ const STEPS = [
   "Elle arrive ici toute seule.",
 ];
 
-type Session = { code: string; qr: string };
+const POLL_MS = 2000;
 
-// Left panel of the photo step: a one-off QR that hands the upload over to
-// the visitor's own phone. The QR is real; the phone-side page and the live
-// sync behind it are not built yet (they need the backend).
-export function PhoneSync() {
+type Session = { id: string; qr: string };
+
+/**
+ * Left panel of the photo step: a QR code that opens a page on the visitor's own phone, where they send photos straight
+ * to this borne. The borne checks for new photos every 2 s while there is room for them, and hands each one to `onPhoto`.
+ */
+export function PhoneSync({ full, onPhoto }: { full: boolean; onPhoto: (dataUrl: string) => void }) {
+  const token = useKioskToken();
+  const idleTouch = useIdleTouch();
   const [session, setSession] = useState<Session | null>(null);
-
+  const [failed, setFailed] = useState(false);
+  const [connected, setConnected] = useState(false);
+  const [received, setReceived] = useState(0);
+  // Photos already taken from the session: a photo the visitor removes on the borne must not come back.
+  const imported = useRef(new Set<string>());
+  const latest = useRef({ full, onPhoto, idleTouch });
   useEffect(() => {
-    // Generated after mount: a random id can't be rendered on the server.
-    const id = crypto.randomUUID();
-    const code = String(parseInt(id.slice(0, 4), 16) % 10000).padStart(4, "0");
+    latest.current = { full, onPhoto, idleTouch };
+  });
+
+  // One session per visit to this step. Generated after mount: the id comes from the database.
+  useEffect(() => {
     let cancelled = false;
-    QRCode.toDataURL(`${window.location.origin}/depot/${id}`, {
-      errorCorrectionLevel: "H",
-      margin: 0,
-      width: 320,
-      color: { dark: "#101a36", light: "#ffffff" },
-    }).then((qr) => {
-      if (!cancelled) setSession({ code, qr });
-    });
+    (async () => {
+      const id = await createPhotoSession(token);
+      if (cancelled) return;
+      if (!id) return setFailed(true);
+      // The phone must reach this site: a borne running on localhost needs NEXT_PUBLIC_SITE_URL (its LAN or public address).
+      const origin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") || window.location.origin;
+      const qr = await QRCode.toDataURL(`${origin}/depot/${id}`, {
+        errorCorrectionLevel: "M",
+        margin: 0,
+        width: 320,
+        color: { dark: "#101a36", light: "#ffffff" },
+      });
+      if (!cancelled) setSession({ id, qr });
+    })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [token]);
+
+  // Collect what the phone sends.
+  useEffect(() => {
+    if (!session) return;
+    let stopped = false;
+    let wasOpened = false;
+    const tick = async () => {
+      const status = await sessionStatus(token, session.id);
+      if (stopped || !status) return;
+      // The visitor is busy on their phone, not idle: keep the form alive.
+      if (status.opened && !wasOpened) latest.current.idleTouch();
+      wasOpened = status.opened;
+      setConnected(status.opened);
+      if (latest.current.full) return;
+      for (const id of status.photoIds) {
+        if (imported.current.has(id)) continue;
+        if (latest.current.full) break;
+        const data = await fetchSessionPhoto(token, id);
+        if (stopped || !data) return;
+        imported.current.add(id);
+        latest.current.onPhoto(data);
+        latest.current.idleTouch();
+        setReceived((n) => n + 1);
+      }
+    };
+    void tick();
+    const timer = setInterval(tick, POLL_MS);
+    return () => {
+      stopped = true;
+      clearInterval(timer);
+    };
+  }, [session, token]);
+
+  const status = failed
+    ? "Le code QR n'a pas pu être créé. Utilisez la caméra de la borne."
+    : received > 0
+      ? `${received} photo${received > 1 ? "s" : ""} reçue${received > 1 ? "s" : ""} du téléphone`
+      : connected
+        ? "Téléphone connecté. Envoyez votre photo."
+        : "En attente du téléphone…";
 
   return (
     <div className="flex h-full flex-col gap-3 rounded-xl border-2 border-line p-4">
@@ -47,7 +108,7 @@ export function PhoneSync() {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={session.qr} alt="QR code à scanner avec votre téléphone" className="size-full" />
             ) : (
-              <div className="size-full animate-pulse bg-line" />
+              <div className={`size-full bg-line ${failed ? "" : "animate-pulse"}`} />
             )}
             {session && (
               <span className="absolute left-1/2 top-1/2 flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md bg-white">
@@ -55,7 +116,7 @@ export function PhoneSync() {
               </span>
             )}
           </div>
-          <p className="mt-2 text-center font-mono text-label-sm tabular-nums text-slate">Session {session?.code ?? "····"}</p>
+          <p className="mt-2 text-center font-mono text-label-sm tabular-nums text-slate">Session {session ? session.id.slice(0, 4).toUpperCase() : "····"}</p>
         </div>
 
         <ol className="flex flex-1 flex-col gap-3 text-body-md text-ink">
@@ -68,7 +129,9 @@ export function PhoneSync() {
         </ol>
       </div>
 
-      <p className="border-t-2 border-line pt-3 text-label-sm font-medium text-slate">En attente du téléphone…</p>
+      <p role="status" className={`border-t-2 border-line pt-3 text-label-sm font-medium ${received > 0 ? "text-ok" : failed ? "text-danger" : "text-slate"}`}>
+        {status}
+      </p>
     </div>
   );
 }

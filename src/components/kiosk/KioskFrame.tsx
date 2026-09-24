@@ -1,12 +1,15 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useLayoutEffect, useState, type ReactNode } from "react";
+import { isPhonePage } from "./KioskProvider";
 import { FRAME } from "@/lib/kiosk";
 
 // Every screen is laid out for one fixed 1194×834 tablet frame. Rather than
 // reflowing, the frame is scaled to fit whatever screen it runs on, so the
 // borne looks identical on the iPad and in a desktop browser.
 export function KioskFrame({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const [scale, setScale] = useState<number | null>(null);
 
   useLayoutEffect(() => {
@@ -15,6 +18,9 @@ export function KioskFrame({ children }: { children: ReactNode }) {
     window.addEventListener("resize", fit);
     return () => window.removeEventListener("resize", fit);
   }, []);
+
+  // A phone page is laid out for the phone itself, not scaled down from the tablet frame.
+  if (isPhonePage(pathname)) return <>{children}</>;
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-canvas">

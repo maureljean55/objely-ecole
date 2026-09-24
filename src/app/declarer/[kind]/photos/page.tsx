@@ -19,7 +19,7 @@ function formatCountdown(seconds: number) {
 
 export default function PhotosPage() {
   const router = useRouter();
-  const { kind, declaration: d, update, setPhoto, ready } = useDeclaration();
+  const { kind, declaration: d, update, setPhoto, addPhoto, ready } = useDeclaration();
   const idleRemaining = useIdleRemaining();
   const token = useKioskToken();
   const [cameraSlot, setCameraSlot] = useState<number | null>(null);
@@ -98,7 +98,7 @@ export default function PhotosPage() {
         </div>
 
         <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
-          <PhoneSync />
+          <PhoneSync full={firstEmpty === -1} onPhoto={addPhoto} />
 
           <div className="flex h-full flex-col gap-3 rounded-xl border-2 border-line p-4">
             <p className="font-mono text-label-sm font-semibold uppercase tracking-wider text-accent">

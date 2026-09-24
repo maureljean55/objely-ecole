@@ -78,6 +78,8 @@ type Ctx = {
   ready: boolean;
   update: (patch: Partial<Declaration>) => void;
   setPhoto: (slot: number, dataUrl: string | null) => void;
+  /** Puts a photo in the first free slot; dropped when all slots are taken. */
+  addPhoto: (dataUrl: string) => void;
   reset: () => void;
 };
 
@@ -116,14 +118,22 @@ export function DeclarationProvider({ kind, children }: { kind: Kind; children: 
       setDeclaration((d) => ({ ...d, photos: d.photos.map((p, i) => (i === slot ? dataUrl : p)) })),
     [],
   );
+  const addPhoto = useCallback(
+    (dataUrl: string) =>
+      setDeclaration((d) => {
+        const slot = d.photos.findIndex((p) => !p);
+        return slot < 0 ? d : { ...d, photos: d.photos.map((p, i) => (i === slot ? dataUrl : p)) };
+      }),
+    [],
+  );
   const reset = useCallback(() => {
     clearStoredDeclaration();
     setDeclaration(EMPTY);
   }, []);
 
   const value = useMemo(
-    () => ({ kind, declaration, ready, update, setPhoto, reset }),
-    [kind, declaration, ready, update, setPhoto, reset],
+    () => ({ kind, declaration, ready, update, setPhoto, addPhoto, reset }),
+    [kind, declaration, ready, update, setPhoto, addPhoto, reset],
   );
   return <DeclarationContext.Provider value={value}>{children}</DeclarationContext.Provider>;
 }

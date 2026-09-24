@@ -8,10 +8,16 @@ import { useDeclaration } from "@/lib/declaration";
 import { Button } from "./Button";
 
 const IdleContext = createContext<number>(90);
+const IdleTouchContext = createContext<() => void>(() => {});
 
 /** Seconds left before the borne wipes the form and returns to the home screen. */
 export function useIdleRemaining() {
   return useContext(IdleContext);
+}
+
+/** Restarts the countdown for activity that is not a touch on the borne (e.g. a photo arriving from the visitor's phone). */
+export function useIdleTouch() {
+  return useContext(IdleTouchContext);
 }
 
 // A borne is shared: whoever walks away mid-form must not leave their
@@ -48,7 +54,7 @@ export function IdleGuard({ children }: { children: ReactNode }) {
 
   return (
     <IdleContext.Provider value={remaining}>
-      {children}
+      <IdleTouchContext.Provider value={touch}>{children}</IdleTouchContext.Provider>
       {remaining <= IDLE_WARNING_SECONDS && remaining > 0 && (
         <div
           role="alertdialog"

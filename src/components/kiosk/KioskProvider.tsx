@@ -28,6 +28,9 @@ export function useKioskToken(): string {
   return token;
 }
 
+/** Pages opened on a visitor's phone rather than on the borne. */
+export const isPhonePage = (pathname: string) => pathname.startsWith("/depot/");
+
 export function KioskProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -83,13 +86,16 @@ export function KioskProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const onCode = pathname === "/connexion";
+  // /depot/… is opened on a visitor's own phone (from the QR code of the photo step): it is not a borne and is never paired.
+  const onPhone = isPhonePage(pathname);
   useEffect(() => {
+    if (onPhone) return;
     if (status === "unpaired" && !onCode) router.replace("/connexion");
     if (status === "ready" && onCode) router.replace("/");
-  }, [status, onCode, router]);
+  }, [status, onCode, onPhone, router]);
 
   // Nothing of the borne is shown before it is paired (and no flash of the wrong screen while redirecting).
-  const visible = status === "unpaired" ? onCode : status === "ready" ? !onCode : false;
+  const visible = onPhone || (status === "unpaired" ? onCode : status === "ready" ? !onCode : false);
 
   return <KioskContext.Provider value={{ config, token, pair }}>{visible ? children : null}</KioskContext.Provider>;
 }

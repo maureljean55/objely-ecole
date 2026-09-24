@@ -40,17 +40,7 @@ export function Header({ variant }: { variant: "home" | "wizard" }) {
           The establishment is intentionally not shown here for now. */}
       <div className="flex items-center gap-2.5 rounded-xl bg-white px-4 py-2 shadow-sm ring-1 ring-black/5">
         <LogoMark height={38} priority />
-        <span
-          className="font-display text-[30px] font-extrabold leading-none tracking-tight"
-          style={{
-            backgroundImage: "linear-gradient(90deg, #087be8, #735af4, #a34ee9)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
-          Objely
-        </span>
+        <span className="font-display text-[30px] font-extrabold leading-none tracking-tight text-ink">Objely</span>
       </div>
 
       {variant === "wizard" && (

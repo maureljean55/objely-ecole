@@ -36,11 +36,15 @@ export function Header({ variant }: { variant: "home" | "wizard" }) {
 
   return (
     <header className="glass-bar absolute inset-x-8 top-2 z-20 flex h-[68px] items-center justify-between gap-6 rounded-[34px] px-6">
-      {/* Brand only, as in the app's header: "Objely" in a small white rounded chip.
-          The establishment is intentionally not shown here for now. */}
-      <div className="flex items-center gap-2.5 rounded-xl bg-white px-4 py-2 shadow-sm ring-1 ring-black/5">
-        <LogoMark height={38} priority />
+      {/* Brand + establishment */}
+      <div className="flex items-center gap-3">
+        <LogoMark height={42} priority />
         <span className="font-display text-[30px] font-extrabold leading-none tracking-tight text-ink">Objely</span>
+        <span aria-hidden="true" className="mx-1 h-8 w-0.5 rounded-full bg-ink/20" />
+        <div className="leading-none">
+          <p className="text-[13px] font-semibold uppercase tracking-[0.16em] text-slate">{KIOSK.schoolType}</p>
+          <p className="mt-1 font-display text-[20px] font-bold tracking-tight text-ink">{KIOSK.schoolName}</p>
+        </div>
       </div>
 
       {variant === "wizard" && (

@@ -31,7 +31,7 @@ export default function HomePage() {
             style={{ fontFamily: "var(--font-caveat), cursive" }}
           >
             <p
-              className="text-[36px] font-bold leading-[1.1] tracking-[0.2px]"
+              className="text-[28px] font-bold leading-[1.1] tracking-[0.2px]"
               style={{
                 backgroundImage: "linear-gradient(90deg, #087be8, #735af4, #a34ee9)",
                 WebkitBackgroundClip: "text",
@@ -43,15 +43,17 @@ export default function HomePage() {
               <br />
               il y a quelqu&apos;un qui le cherche.
             </p>
-            <svg className="absolute -bottom-6 -right-11 h-11 w-10 rotate-[6deg]" viewBox="0 0 48 56" fill="none">
+            {/* Curved arrow: the two short strokes at the end form the head, aligned with the curve's
+                tangent (down and slightly left) so the tip lands just above the card. */}
+            <svg className="absolute left-full top-[18px] -ml-2 h-[86px] w-[74px]" viewBox="0 0 60 70" fill="none">
               <defs>
-                <linearGradient id="noteArrow" x1="4" y1="4" x2="40" y2="52" gradientUnits="userSpaceOnUse">
+                <linearGradient id="noteArrow" x1="4" y1="4" x2="44" y2="58" gradientUnits="userSpaceOnUse">
                   <stop stopColor="#735af4" />
                   <stop offset="1" stopColor="#a34ee9" />
                 </linearGradient>
               </defs>
-              <path d="M6 6C34 8 46 24 30 46" stroke="url(#noteArrow)" strokeWidth="2.6" strokeLinecap="round" />
-              <path d="M22 40L30 47L37 38" stroke="url(#noteArrow)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M6 6C40 4 58 26 40 56" stroke="url(#noteArrow)" strokeWidth="2.6" strokeLinecap="round" />
+              <path d="M50.2 49.8L40 56L40.6 44" stroke="url(#noteArrow)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
 

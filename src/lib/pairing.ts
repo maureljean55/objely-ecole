@@ -45,14 +45,19 @@ export async function pairKiosk(code: string): Promise<PairResult> {
   return { ok: true, paired };
 }
 
-export type ConfigResult = { ok: true; config: KioskConfig } | { ok: false; reason: "revoked" | "network" };
+export type ConfigResult = { ok: true; config: KioskConfig } | { ok: false; reason: "revoked" | "suspended" | "network" };
 
 /** Checks the token is still valid (also tells the administration this borne is online) and reads the current settings. */
 export async function fetchConfig(token: string): Promise<ConfigResult> {
   const db = getSupabase();
   if (!db) return { ok: false, reason: "network" };
   const { data, error } = await db.rpc("kiosk_config", { p_token: token });
-  if (error) return /invalid_kiosk/.test(error.message) || error.code === "28000" ? { ok: false, reason: "revoked" } : { ok: false, reason: "network" };
+  if (error) {
+    if (/invalid_kiosk/.test(error.message) || error.code === "28000") return { ok: false, reason: "revoked" };
+    // The establishment was suspended by Objely: the borne keeps its pairing and resumes once it is reactivated.
+    if (/organization_suspended/.test(error.message)) return { ok: false, reason: "suspended" };
+    return { ok: false, reason: "network" };
+  }
   const row = (data as { kiosk_name: string; school_name: string; school_type: string; help_desk: string | null; idle_seconds: number }[] | null)?.[0];
   return row ? { ok: true, config: toConfig(row) } : { ok: false, reason: "revoked" };
 }

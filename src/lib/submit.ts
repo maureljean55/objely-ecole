@@ -5,6 +5,7 @@ export type SubmitResult = { ok: true; reference: string } | { ok: false; error:
 
 const MESSAGES: [RegExp, string][] = [
   [/invalid_kiosk/, "Cette borne n'est plus reconnue. Prévenez la vie scolaire."],
+  [/organization_suspended/, "Les déclarations sont suspendues pour cet établissement. Adressez-vous à la vie scolaire."],
   [/rate_limited/, "Trop de déclarations envoyées en peu de temps. Réessayez dans quelques minutes."],
   [/invalid_phone/, "Le numéro de téléphone n'est pas valide. Revenez à la première étape pour le corriger."],
   [/missing_fields|invalid_category|invalid_kind/, "Une information obligatoire manque. Revenez aux étapes précédentes."],

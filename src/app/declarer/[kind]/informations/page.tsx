@@ -9,8 +9,6 @@ import { TextField } from "@/components/wizard/Fields";
 import { StepCard, WizardPage } from "@/components/wizard/WizardPage";
 import { formatPhone, isValidPhone, KIND_COPY, useDeclaration } from "@/lib/declaration";
 
-const CLASS_SUGGESTIONS = ["2nde", "1ère", "Terminale", "Personnel"];
-
 type Field = "nom" | "prenom" | "classe" | "telephone";
 
 export default function InformationsPage() {
@@ -29,7 +27,7 @@ export default function InformationsPage() {
   const errors: Record<Field, string | undefined> = {
     nom: d.nom.trim() ? undefined : "Entrez votre nom",
     prenom: d.prenom.trim() ? undefined : "Entrez votre prénom",
-    classe: d.classe.trim() ? undefined : "Indiquez votre classe ou votre groupe",
+    classe: d.classe.trim() ? undefined : "Indiquez votre niveau d'étude",
     telephone: isValidPhone(d.telephone) ? undefined : "Un numéro compte 10 chiffres, par exemple 06 12 34 56 78",
   };
   const shown = (f: Field) => (touched.has(f) ? errors[f] : undefined);
@@ -49,12 +47,6 @@ export default function InformationsPage() {
       return;
     }
     router.push(`/declarer/${kind}/objet`);
-  };
-
-  const pickClass = (label: string) => {
-    update({ classe: label === "Personnel" ? label : `${label} ` });
-    touch("classe");
-    classeRef.current?.focus();
   };
 
   return (
@@ -102,41 +94,17 @@ export default function InformationsPage() {
             enterKeyHint="next"
           />
 
-          <div className="flex min-w-0 flex-col">
-            <TextField
-              label="Classe ou groupe"
-              required
-              value={d.classe}
-              inputRef={classeRef}
-              onChange={(classe) => update({ classe })}
-              onBlur={() => touch("classe")}
-              error={shown("classe")}
-              placeholder="Ex : Terminale C"
-              enterKeyHint="next"
-            />
-            <div className="-mb-3 mt-1 flex items-center gap-2">
-              {CLASS_SUGGESTIONS.map((label) => {
-                const active = d.classe.startsWith(label);
-                return (
-                  <button
-                    key={label}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => pickClass(label)}
-                    className="press flex h-[52px] items-center"
-                  >
-                    <span
-                      className={`flex h-10 items-center rounded-lg border-2 px-4 text-label-sm ${
-                        active ? "border-accent bg-accent text-white" : "border-line-strong bg-white text-ink"
-                      }`}
-                    >
-                      {label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          <TextField
+            label="Niveau d'étude"
+            required
+            value={d.classe}
+            inputRef={classeRef}
+            onChange={(classe) => update({ classe })}
+            onBlur={() => touch("classe")}
+            error={shown("classe")}
+            placeholder="Ex : Licence 2"
+            enterKeyHint="next"
+          />
 
           <TextField
             label="Téléphone"

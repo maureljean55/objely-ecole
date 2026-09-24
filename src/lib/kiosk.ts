@@ -4,9 +4,6 @@ export const FRAME = { width: 1194, height: 834 } as const;
 // Per-installation values. Hardcoded for the first pilot; these move to the
 // database once schools/kiosks are modelled.
 export const KIOSK = {
-  // Shown on two lines in the header ("Lycée" over "Jean Moulin"), and joined elsewhere.
-  schoolType: "Lycée",
-  schoolName: "Jean Moulin",
   school: "Lycée Jean Moulin",
   station: "Borne d'entrée principale",
   version: "2.4",

@@ -13,8 +13,8 @@ npm run dev
 
 ## Appairage de la borne
 
-Avant tout, la borne affiche une seule page (`/connexion`) avec une barre pour le **code de la borne** : le code à 6 chiffres
-que l'administration des écoles affiche quand on ajoute une borne (page Bornes). Dès que les 6 chiffres sont saisis, la borne
+Avant tout, la borne affiche une seule page (`/connexion`) avec une barre pour le **code de la borne** : le code (`#` + 6 chiffres et lettres, ex. `#A7K9Q2`)
+que l'administration des écoles affiche quand on ajoute une borne (page Bornes). Dès que les 6 caractères sont saisis, la borne
 s'appaire (fonction `pair_kiosk`), garde son jeton dans le navigateur et ne redemande plus le code. Le code est à usage
 unique et valable 48 h. Ensuite l'en-tête, le numéro d'aide et le délai d'inactivité viennent de la base
 (`src/components/kiosk/KioskProvider.tsx`). Si la borne est supprimée dans l'administration, elle revient à la page du code.

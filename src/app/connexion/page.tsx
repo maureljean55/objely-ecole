@@ -13,7 +13,7 @@ const MESSAGES = {
   not_configured: "La borne n'est pas configurée.",
 } as const;
 
-// The only thing a borne needs before it can be used: the code shown in the administration when it was added.
+// The only thing a borne needs before it can be used: the code (#A7K9Q2) shown in the administration when it was added.
 export default function ConnexionPage() {
   const pair = usePairing();
   const [code, setCode] = useState("");
@@ -33,11 +33,13 @@ export default function ConnexionPage() {
   }
 
   function change(raw: string) {
-    const digits = raw.replace(/\D/g, "").slice(0, CODE_LENGTH);
-    setCode(digits);
+    // The code is "#" + 6 letters/digits. The "#" is drawn by the bar itself, so whatever is typed or pasted
+    // ("#a7k9q2", "A7K 9Q2"…) is reduced to its 6 characters, in capitals.
+    const chars = raw.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, CODE_LENGTH);
+    setCode(chars);
     setError(null);
-    // Six digits is a complete code: no button to press.
-    if (digits.length === CODE_LENGTH) void submit(digits);
+    // Six characters is a complete code: no button to press.
+    if (chars.length === CODE_LENGTH) void submit(chars);
   }
 
   return (
@@ -50,22 +52,22 @@ export default function ConnexionPage() {
       <div className="flex flex-col items-center gap-4">
         <input
           ref={inputRef}
-          value={code}
+          value={code ? `#${code}` : ""}
           onChange={(e) => change(e.target.value)}
           disabled={busy}
           autoFocus
           type="text"
-          inputMode="numeric"
-          pattern="[0-9]*"
+          inputMode="text"
           autoComplete="off"
           autoCorrect="off"
+          autoCapitalize="characters"
           spellCheck={false}
-          maxLength={CODE_LENGTH}
+          maxLength={CODE_LENGTH + 1}
           enterKeyHint="go"
           aria-label="Code de la borne"
           aria-invalid={error ? true : undefined}
           placeholder={busy ? "Vérification…" : "Code de la borne"}
-          className={`h-[88px] w-[560px] rounded-[28px] border-2 bg-white text-center font-mono text-[40px] font-semibold tracking-[0.5em] text-ink caret-blue outline-none transition-[border-color,box-shadow] placeholder:font-sans placeholder:text-[26px] placeholder:font-medium placeholder:tracking-normal placeholder:text-slate/60 focus:shadow-[0_0_0_5px_rgba(31,99,224,0.18)] disabled:opacity-70 ${
+          className={`h-[88px] w-[560px] rounded-[28px] border-2 bg-white text-center font-mono text-[40px] font-semibold tracking-[0.3em] text-ink caret-blue outline-none transition-[border-color,box-shadow] placeholder:font-sans placeholder:text-[26px] placeholder:font-medium placeholder:tracking-normal placeholder:text-slate/60 focus:shadow-[0_0_0_5px_rgba(31,99,224,0.18)] disabled:opacity-70 ${
             error ? "border-danger animate-shake" : "border-line-strong focus:border-blue"
           }`}
         />

@@ -22,7 +22,7 @@ const STEPS = {
   perdu: ["Déclaration reçue", "Recherche en cours", "Objet retrouvé", "Objet rendu"],
   trouve: ["Déclaration reçue", "Objet déposé", "Rendu à son propriétaire"],
 } as const;
-const REACHED: Record<Stage, number> = { searching: 1, match: 2, returned: 3, closed: 0, to_deposit: 0, deposited: 1, donated: 1 };
+const REACHED: Record<Stage, number> = { searching: 1, match_pending: 2, match: 2, returned: 3, closed: 0, to_deposit: 0, owner_found: 0, deposited: 1, donated: 1 };
 
 const date = (iso: string) => new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "long", timeZone: "Europe/Paris" });
 
@@ -31,7 +31,11 @@ function message(t: Tracked): { icon: string; title: string; text: string; tone:
     case "searching":
       return { icon: "manage_search", tone: "accent", title: "Recherche en cours", text: "La vie scolaire compare votre déclaration aux objets qu'on lui dépose. Revenez vérifier dans quelques jours : vous serez aussi prévenu si un objet correspond." };
     case "match":
-      return { icon: "notifications_active", tone: "ok", title: "Un objet correspond !", text: "Passez au bureau de la vie scolaire avec votre carte d'élève pour le récupérer." };
+      return { icon: "notifications_active", tone: "ok", title: "Un objet correspond !", text: "Passez au bureau de la vie scolaire avec votre code et une preuve que l'objet est à vous (photo, facture, détail que vous seul connaissez)." };
+    case "match_pending":
+      return { icon: "schedule", tone: "ok", title: "Votre objet a été retrouvé", text: "La personne qui l'a trouvé doit encore le déposer au service vie scolaire. Revenez vérifier bientôt, puis présentez votre code avec une preuve que l'objet est à vous." };
+    case "owner_found":
+      return { icon: "front_hand", tone: "ok", title: "Son propriétaire est identifié", text: "Déposez l'objet au bureau de la vie scolaire avec votre code : il sera rendu à son propriétaire." };
     case "returned":
       return t.kind === "perdu"
         ? { icon: "task_alt", tone: "ok", title: "Objet rendu", text: `Votre objet vous a été rendu le ${date(t.updatedAt)}. Dossier clos.` }

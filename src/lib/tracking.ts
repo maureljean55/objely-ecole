@@ -4,7 +4,7 @@ import { getSupabase } from "./supabase";
 // "Suivre ma déclaration": where a declaration stands, from its reference and the declarant's last name.
 // See supabase/migrations/…_declaration_tracking.sql for what each stage means.
 
-export type Stage = "searching" | "match" | "returned" | "closed" | "to_deposit" | "deposited" | "donated";
+export type Stage = "searching" | "match" | "match_pending" | "returned" | "closed" | "to_deposit" | "owner_found" | "deposited" | "donated";
 
 export type Tracked = { reference: string; kind: Kind; objectName: string; stage: Stage; createdAt: string; updatedAt: string };
 

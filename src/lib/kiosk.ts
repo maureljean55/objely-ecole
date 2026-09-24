@@ -1,9 +1,8 @@
 // Fixed iPad 11" landscape frame every screen is designed against.
 export const FRAME = { width: 1194, height: 834 } as const;
 
-/** This app's version (package.json) and the commit it was built from, set at build time in next.config.ts. */
+/** This app's version (package.json), set at build time in next.config.ts. */
 export const VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "";
-export const COMMIT = process.env.NEXT_PUBLIC_APP_COMMIT ?? "";
 // Seconds before the idle wipe at which we ask "still there?".
 export const IDLE_WARNING_SECONDS = 15;
 

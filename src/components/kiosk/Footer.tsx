@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useKiosk } from "@/components/kiosk/KioskProvider";
-import { COMMIT, VERSION } from "@/lib/kiosk";
+import { VERSION } from "@/lib/kiosk";
 import { Icon } from "./Icon";
 
 // The header's twin: the same floating glass bar, same side margins (32px), pinned to the bottom. It sits in the 64px
@@ -50,7 +50,6 @@ export function Footer({ variant }: { variant: "home" | "wizard" }) {
           <span aria-hidden="true" className="h-6 w-0.5 rounded-full bg-ink/15" />
           <p className="font-mono text-label-sm font-medium tracking-[0.08em] text-slate">
             Objely École v{VERSION}
-            {COMMIT && <span className="text-slate/70"> · {COMMIT}</span>}
           </p>
         </div>
       </div>

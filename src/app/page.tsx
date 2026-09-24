@@ -24,6 +24,37 @@ export default function HomePage() {
             </p>
           </div>
 
+          {/* Handwritten, tilted note in the app's blue-violet gradient, pointing down at the cards. */}
+          <div
+            aria-hidden="true"
+            className="relative ml-4 w-fit -rotate-[4deg]"
+            style={{ fontFamily: "var(--font-caveat), cursive" }}
+          >
+            <p
+              className="text-[36px] font-bold leading-[1.1] tracking-[0.2px]"
+              style={{
+                backgroundImage: "linear-gradient(90deg, #087be8, #735af4, #a34ee9)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              Derrière chaque objet perdu,
+              <br />
+              il y a quelqu&apos;un qui le cherche.
+            </p>
+            <svg className="absolute -bottom-6 -right-11 h-11 w-10 rotate-[6deg]" viewBox="0 0 48 56" fill="none">
+              <defs>
+                <linearGradient id="noteArrow" x1="4" y1="4" x2="40" y2="52" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#735af4" />
+                  <stop offset="1" stopColor="#a34ee9" />
+                </linearGradient>
+              </defs>
+              <path d="M6 6C34 8 46 24 30 46" stroke="url(#noteArrow)" strokeWidth="2.6" strokeLinecap="round" />
+              <path d="M22 40L30 47L37 38" stroke="url(#noteArrow)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+
           <div className="flex flex-col gap-5 pb-2">
             <Link href="/declarer/perdu/informations" className="action-card action-lost press">
               <span className="action-icon">

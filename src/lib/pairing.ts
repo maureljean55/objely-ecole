@@ -45,7 +45,7 @@ export async function pairKiosk(code: string): Promise<PairResult> {
   return { ok: true, paired };
 }
 
-export type ConfigResult = { ok: true; config: KioskConfig } | { ok: false; reason: "revoked" | "suspended" | "network" };
+export type ConfigResult = { ok: true; config: KioskConfig } | { ok: false; reason: "revoked" | "suspended" | "paused" | "network" };
 
 /** Checks the token is still valid (also tells the administration this borne is online) and reads the current settings. */
 export async function fetchConfig(token: string): Promise<ConfigResult> {
@@ -56,6 +56,8 @@ export async function fetchConfig(token: string): Promise<ConfigResult> {
     if (/invalid_kiosk/.test(error.message) || error.code === "28000") return { ok: false, reason: "revoked" };
     // The establishment was suspended by Objely: the borne keeps its pairing and resumes once it is reactivated.
     if (/organization_suspended/.test(error.message)) return { ok: false, reason: "suspended" };
+    // Paused by the establishment itself: same, it resumes on its own.
+    if (/kiosk_paused/.test(error.message)) return { ok: false, reason: "paused" };
     return { ok: false, reason: "network" };
   }
   const row = (data as { kiosk_name: string; school_name: string; school_type: string; help_desk: string | null; idle_seconds: number }[] | null)?.[0];

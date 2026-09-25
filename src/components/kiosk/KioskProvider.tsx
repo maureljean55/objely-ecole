@@ -7,12 +7,13 @@ import { fetchConfig, pairKiosk, readPaired, savePaired, type PairResult } from 
 import { Icon } from "./Icon";
 import { LogoMark } from "./LogoMark";
 
-// Heartbeat: every borne call updates its "last seen" time, which the administration shows as online/offline.
-const HEARTBEAT_MS = 4 * 60_000;
+// Heartbeat: every borne call updates its "last seen" time, which the administration shows as online/offline. Every
+// minute, so a borne paused or suspended from the administration stops within a minute.
+const HEARTBEAT_MS = 60_000;
 // While the establishment is suspended, check more often so the borne comes back soon after it is reactivated.
 const SUSPENDED_CHECK_MS = 60_000;
 
-type Status = "checking" | "unpaired" | "ready" | "suspended";
+type Status = "checking" | "unpaired" | "ready" | "suspended" | "paused";
 type Ctx = { config: KioskConfig | null; token: string | null; pair: (code: string) => Promise<PairResult> };
 
 const KioskContext = createContext<Ctx>({ config: null, token: null, pair: async () => ({ ok: false, reason: "network" }) });
@@ -61,14 +62,14 @@ export function KioskProvider({ children }: { children: ReactNode }) {
     const check = async () => {
       const result = await fetchConfig(saved.token);
       if (stopped) return;
-      const suspended = !result.ok && result.reason === "suspended";
-      timer = setTimeout(check, suspended ? SUSPENDED_CHECK_MS : HEARTBEAT_MS);
+      const blocked = !result.ok && (result.reason === "suspended" || result.reason === "paused") ? result.reason : null;
+      timer = setTimeout(check, blocked ? SUSPENDED_CHECK_MS : HEARTBEAT_MS);
       if (result.ok) {
         setConfig(result.config);
         setStatus("ready");
         savePaired({ token: saved.token, config: result.config });
-      } else if (suspended) {
-        setStatus("suspended");
+      } else if (blocked) {
+        setStatus(blocked);
       } else if (result.reason === "revoked") {
         // The borne was removed in the administration: back to the code screen.
         savePaired(null);
@@ -106,25 +107,31 @@ export function KioskProvider({ children }: { children: ReactNode }) {
   // Nothing of the borne is shown before it is paired (and no flash of the wrong screen while redirecting).
   const visible = onPhone || (status === "unpaired" ? onCode : status === "ready" ? !onCode : false);
 
-  if (status === "suspended" && !onPhone) return <SuspendedScreen schoolName={config?.schoolName} />;
+  if ((status === "suspended" || status === "paused") && !onPhone) {
+    return <SuspendedScreen schoolName={config?.school} paused={status === "paused"} />;
+  }
 
   return <KioskContext.Provider value={{ config, token, pair }}>{visible ? children : null}</KioskContext.Provider>;
 }
 
-// Shown instead of the borne while Objely has suspended the establishment. Nothing is lost: the borne keeps its
-// pairing and goes back to the home screen by itself once the establishment is reactivated.
-function SuspendedScreen({ schoolName }: { schoolName?: string }) {
+// Shown instead of the borne while Objely has suspended the establishment, or the establishment has paused this borne.
+// Nothing is lost: the borne keeps its pairing and goes back to the home screen by itself once reactivated.
+function SuspendedScreen({ schoolName, paused }: { schoolName?: string; paused: boolean }) {
   return (
     <main className="flex size-full flex-col items-center justify-center gap-6 px-16 text-center">
       <LogoMark height={48} priority />
-      <span className="flex size-20 items-center justify-center rounded-full bg-danger-tint text-danger">
-        <Icon name="block" size={40} />
+      <span className={`flex size-20 items-center justify-center rounded-full ${paused ? "bg-accent-tint text-accent" : "bg-danger-tint text-danger"}`}>
+        {paused ? <Icon name="pause_circle" size={40} /> : <Icon name="block" size={40} />}
       </span>
       <div className="max-w-[640px]">
-        <h1 className="text-h-xl text-ink">Borne momentanément indisponible</h1>
+        <h1 className="text-h-xl text-ink">{paused ? "Borne en pause" : "Borne momentanément indisponible"}</h1>
         <p className="mt-3 text-body-xl text-slate">
-          {schoolName ? `Les déclarations sont suspendues pour ${schoolName}.` : "Les déclarations sont suspendues pour cet établissement."} Adressez-vous à la
-          vie scolaire pour déclarer un objet perdu ou trouvé.
+          {paused
+            ? "Cette borne a été mise en pause par l'établissement. "
+            : schoolName
+              ? `Les déclarations sont suspendues pour ${schoolName}. `
+              : "Les déclarations sont suspendues pour cet établissement. "}
+          Pour déclarer un objet perdu ou trouvé, adressez-vous à la vie scolaire.
         </p>
       </div>
     </main>

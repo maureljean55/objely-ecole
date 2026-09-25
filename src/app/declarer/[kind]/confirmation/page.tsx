@@ -9,7 +9,16 @@ import { Ticket } from "@/components/wizard/Ticket";
 import { CATEGORIES, useDeclaration, type Kind } from "@/lib/declaration";
 import { confirmMatch, findMatches, type Candidate } from "@/lib/instantMatch";
 
-const RETURN_AFTER = 30;
+// Seconds before the final screen goes back home by itself (time to note or photograph the code).
+const RETURN_AFTER = 90;
+
+/** 90 → "1 min 30 s", 45 → "45 s". */
+function formatLeft(seconds: number) {
+  const s = Math.max(seconds, 0);
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return m > 0 ? `${m} min ${String(r).padStart(2, "0")} s` : `${r} s`;
+}
 // The search is near-instant; it stays on screen long enough to be read.
 const MIN_SEARCH_MS = 2800;
 
@@ -157,7 +166,7 @@ export default function ConfirmationPage() {
           Déclarer un autre objet
         </Button>
         <p className="text-label-sm font-medium text-slate">
-          Retour à l&apos;accueil dans <span className="font-mono text-label-lg tabular-nums text-ink">{Math.max(left, 0)} s</span>
+          Retour à l&apos;accueil dans <span className="font-mono text-label-lg tabular-nums text-ink">{formatLeft(left)}</span>
         </p>
         <Button icon="check" onClick={finish}>
           Terminer

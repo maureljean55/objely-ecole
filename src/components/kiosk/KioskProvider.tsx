@@ -3,15 +3,18 @@
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import type { KioskConfig } from "@/lib/kiosk";
-import { fetchConfig, pairKiosk, readPaired, savePaired, type PairResult } from "@/lib/pairing";
+import { fetchConfig, fetchKioskChannel, pairKiosk, readPaired, savePaired, type PairResult } from "@/lib/pairing";
+import { getSupabase } from "@/lib/supabase";
 import { Icon } from "./Icon";
 import { LogoMark } from "./LogoMark";
 
-// Heartbeat: every borne call updates its "last seen" time, which the administration shows as online/offline. Every
-// minute, so a borne paused or suspended from the administration stops within a minute.
+// Heartbeat: every borne call updates its "last seen" time, which the administration shows as online/offline.
+// A pause or suspension normally reaches the borne at once (Realtime "check" nudge from the database); this regular
+// check is the fallback if that message is missed.
 const HEARTBEAT_MS = 60_000;
-// While the establishment is suspended, check more often so the borne comes back soon after it is reactivated.
-const SUSPENDED_CHECK_MS = 60_000;
+
+// The build this page was loaded with; /api/version answers with the build currently online.
+const BUILD = process.env.NEXT_PUBLIC_BUILD_ID ?? "";
 
 type Status = "checking" | "unpaired" | "ready" | "suspended" | "paused";
 type Ctx = { config: KioskConfig | null; token: string | null; pair: (code: string) => Promise<PairResult> };
@@ -43,7 +46,7 @@ export function KioskProvider({ children }: { children: ReactNode }) {
   const [config, setConfig] = useState<KioskConfig | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
-  // On start: use the saved pairing right away (a borne must open even if the network is down), then check it.
+  // On start: use the saved pairing right away (a borne must open even if the network is down).
   useEffect(() => {
     // localStorage does not exist on the server, so the saved pairing can only be read after mount.
     const saved = readPaired();
@@ -56,20 +59,24 @@ export function KioskProvider({ children }: { children: ReactNode }) {
     setToken(saved.token);
     setStatus("ready");
     /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
 
+  // While paired: check the borne's state now, every minute, and whenever the database nudges it.
+  useEffect(() => {
+    if (!token) return;
     let stopped = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const check = async () => {
-      const result = await fetchConfig(saved.token);
+      clearTimeout(timer);
+      const result = await fetchConfig(token);
       if (stopped) return;
-      const blocked = !result.ok && (result.reason === "suspended" || result.reason === "paused") ? result.reason : null;
-      timer = setTimeout(check, blocked ? SUSPENDED_CHECK_MS : HEARTBEAT_MS);
+      timer = setTimeout(check, HEARTBEAT_MS);
       if (result.ok) {
         setConfig(result.config);
         setStatus("ready");
-        savePaired({ token: saved.token, config: result.config });
-      } else if (blocked) {
-        setStatus(blocked);
+        savePaired({ token, config: result.config });
+      } else if (result.reason === "suspended" || result.reason === "paused") {
+        setStatus(result.reason);
       } else if (result.reason === "revoked") {
         // The borne was removed in the administration: back to the code screen.
         savePaired(null);
@@ -79,11 +86,49 @@ export function KioskProvider({ children }: { children: ReactNode }) {
       }
     };
     void check();
+
+    // Realtime nudge: the database says "check now" on this borne's topic when it is paused / resumed or when the
+    // establishment is suspended / reactivated. The message is only a trigger: the state always comes from check().
+    const db = getSupabase();
+    let channel: ReturnType<NonNullable<typeof db>["channel"]> | null = null;
+    void fetchKioskChannel(token).then((id) => {
+      if (stopped || !id || !db) return;
+      channel = db.channel(`kiosk:${id}`).on("broadcast", { event: "check" }, () => void check()).subscribe();
+    });
+    // Coming back to a tab that was asleep: check at once.
+    const onVisible = () => document.visibilityState === "visible" && void check();
+    document.addEventListener("visibilitychange", onVisible);
+
     return () => {
       stopped = true;
       clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+      if (channel && db) void db.removeChannel(channel);
     };
-  }, []);
+  }, [token]);
+
+  // A borne stays open for days: when a new version is online, reload — only on the home or code screen, never in the
+  // middle of someone's declaration.
+  const idleScreen = pathname === "/" || pathname === "/connexion";
+  useEffect(() => {
+    if (!BUILD || !idleScreen) return;
+    let stopped = false;
+    const look = async () => {
+      try {
+        const res = await fetch("/api/version", { cache: "no-store" });
+        const { build } = (await res.json()) as { build?: string };
+        if (!stopped && build && build !== BUILD) window.location.reload();
+      } catch {
+        // Offline: try again at the next round.
+      }
+    };
+    void look();
+    const id = setInterval(look, 5 * 60_000);
+    return () => {
+      stopped = true;
+      clearInterval(id);
+    };
+  }, [idleScreen]);
 
   const pair = useCallback(async (code: string) => {
     const result = await pairKiosk(code);

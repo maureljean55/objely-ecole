@@ -63,3 +63,11 @@ export async function fetchConfig(token: string): Promise<ConfigResult> {
   const row = (data as { kiosk_name: string; school_name: string; school_type: string; help_desk: string | null; idle_seconds: number }[] | null)?.[0];
   return row ? { ok: true, config: toConfig(row) } : { ok: false, reason: "revoked" };
 }
+
+/** The id this borne listens to for Realtime "check" nudges (see …_kiosk_realtime_nudge.sql). null if unavailable. */
+export async function fetchKioskChannel(token: string): Promise<string | null> {
+  const db = getSupabase();
+  if (!db) return null;
+  const { data, error } = await db.rpc("kiosk_channel", { p_token: token });
+  return error ? null : (data as string);
+}

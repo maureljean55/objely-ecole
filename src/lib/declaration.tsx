@@ -23,6 +23,8 @@ export const LOCATIONS = [
   "Couloir / Hall",
   "Je ne sais pas",
 ];
+/** The last choice of LOCATIONS: not a place. Sent as "no location" so it never counts as "same place" in matching. */
+export const UNKNOWN_LOCATION = "Je ne sais pas";
 
 export const PHOTO_SLOTS = [
   { label: "Face avant", empty: "Ajouter la face avant", icon: "add_a_photo" },
@@ -47,6 +49,8 @@ export type Declaration = {
   photos: (string | null)[];
   /** Set once the declaration has been submitted. */
   reference: string | null;
+  /** Object in stock the student recognised in "Rechercher" ("C'est le mien"): linked right after sending. */
+  claimObjectId: string | null;
 };
 
 const EMPTY: Declaration = {
@@ -60,9 +64,19 @@ const EMPTY: Declaration = {
   description: "",
   photos: [null, null, null],
   reference: null,
+  claimObjectId: null,
 };
 
 const STORAGE_KEY = "objely-ecole:declaration";
+
+/** Starts a new declaration with some answers already filled in (e.g. from an object recognised in "Rechercher"). */
+export function startDeclarationDraft(partial: Partial<Declaration>) {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ ...EMPTY, ...partial }));
+  } catch {
+    // Blocked storage: the form simply starts empty.
+  }
+}
 
 /** Wipes any in-progress declaration. The home screen calls this on every visit. */
 export function clearStoredDeclaration() {

@@ -1,4 +1,4 @@
-import type { Declaration, Kind } from "@/lib/declaration";
+import { UNKNOWN_LOCATION, type Declaration, type Kind } from "@/lib/declaration";
 import { getSupabase } from "./supabase";
 
 export type SubmitResult = { ok: true; reference: string } | { ok: false; error: string };
@@ -27,7 +27,8 @@ export async function submitDeclaration(token: string, kind: Kind, d: Declaratio
     p_object_name: d.objectName,
     p_category: d.category,
     p_description: d.description,
-    p_location: d.location || null,
+    // "Je ne sais pas" is not a place: two such declarations must not count as found "at the same place".
+    p_location: d.location && d.location !== UNKNOWN_LOCATION ? d.location : null,
     p_photos: d.photos.filter((p): p is string => Boolean(p)),
   });
 

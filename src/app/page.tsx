@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Hero } from "@/components/home/Hero";
+import { HomeTitle } from "@/components/home/HomeTitle";
 import { ResetDraft } from "@/components/home/ResetDraft";
 import { Icon } from "@/components/kiosk/Icon";
 import { Screen } from "@/components/kiosk/Screen";
@@ -14,15 +15,7 @@ export default function HomePage() {
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col justify-between">
-          <div>
-            <h1 className="text-display text-ink">
-              Perdu ou trouvé un objet <span className="block text-blue">au lycée ?</span>
-            </h1>
-            <p className="mt-4 text-body-xl text-slate">
-              Objely aide les élèves et le personnel à retrouver leurs affaires rapidement. Déclarez un objet en moins
-              d&apos;une minute : nous rapprochons les déclarations et vous alertons automatiquement.
-            </p>
-          </div>
+          <HomeTitle />
 
           {/* Handwritten, tilted note in the app's blue-violet gradient, pointing down at the cards. */}
           <div

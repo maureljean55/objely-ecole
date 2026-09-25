@@ -13,6 +13,11 @@ import { LogoMark } from "./LogoMark";
 // check is the fallback if that message is missed.
 const HEARTBEAT_MS = 60_000;
 
+// Rechercher / Suivre / Assistance: back to the home screen after this long without a touch, so the borne never stays
+// on a page someone left (the declaration steps have their own countdown, see IdleGuard).
+const BROWSE_IDLE_MS = 2 * 60_000;
+const BROWSE_PAGES = ["/rechercher", "/suivi", "/assistance"];
+
 // The build this page was loaded with; /api/version answers with the build currently online.
 const BUILD = process.env.NEXT_PUBLIC_BUILD_ID ?? "";
 
@@ -106,6 +111,22 @@ export function KioskProvider({ children }: { children: ReactNode }) {
       if (channel && db) void db.removeChannel(channel);
     };
   }, [token]);
+
+  const browsing = status === "ready" && BROWSE_PAGES.some((p) => pathname.startsWith(p));
+  useEffect(() => {
+    if (!browsing) return;
+    let timer = setTimeout(() => router.replace("/"), BROWSE_IDLE_MS);
+    const touch = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => router.replace("/"), BROWSE_IDLE_MS);
+    };
+    const events = ["pointerdown", "keydown"] as const;
+    events.forEach((e) => window.addEventListener(e, touch, { passive: true }));
+    return () => {
+      clearTimeout(timer);
+      events.forEach((e) => window.removeEventListener(e, touch));
+    };
+  }, [browsing, pathname, router]);
 
   // A borne stays open for days: when a new version is online, reload — only on the home or code screen, never in the
   // middle of someone's declaration.

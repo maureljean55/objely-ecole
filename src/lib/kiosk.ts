@@ -38,3 +38,22 @@ export function toConfig(row: ConfigRow): KioskConfig {
     idleSeconds: row.idle_seconds,
   };
 }
+
+/** "au lycée", "à l'université"… from the establishment's type, for sentences like "Perdu un objet au lycée ?". */
+export function atSchool(schoolType: string) {
+  switch (schoolType) {
+    case "École":
+      return "à l'école";
+    case "Collège":
+      return "au collège";
+    case "Lycée":
+      return "au lycée";
+    case "Université":
+      return "à l'université";
+    default:
+      return "dans l'établissement";
+  }
+}
+
+/** What a student's number is called there: "numéro étudiant" at a university, "numéro d'élève" elsewhere. */
+export const studentNumber = (schoolType: string) => (schoolType === "Université" ? "numéro étudiant" : "numéro d'élève");

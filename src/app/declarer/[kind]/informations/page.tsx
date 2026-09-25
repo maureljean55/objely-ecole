@@ -116,7 +116,7 @@ export default function InformationsPage() {
             aside="Facultatif"
             note={
               kind === "perdu"
-                ? "Nous vous envoyons un SMS si l'objet est déposé."
+                ? "La vie scolaire vous appelle si un objet correspond."
                 : "Nous ne l'utilisons que si le propriétaire se manifeste."
             }
             placeholder="06 12 34 56 78"

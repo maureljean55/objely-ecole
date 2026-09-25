@@ -36,7 +36,7 @@ export async function findMatches(token: string, reference: string): Promise<Can
   }));
 }
 
-export async function confirmMatch(token: string, reference: string, candidate: Candidate): Promise<boolean> {
+export async function confirmMatch(token: string, reference: string, candidate: Pick<Candidate, "id" | "source">): Promise<boolean> {
   const db = getSupabase();
   if (!db) return false;
   const { error } = await db.rpc("kiosk_confirm_match", { p_token: token, p_ref: reference, p_source: candidate.source, p_candidate: candidate.id });

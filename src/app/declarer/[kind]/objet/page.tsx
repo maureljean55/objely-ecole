@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/kiosk/Icon";
+import { useKiosk } from "@/components/kiosk/KioskProvider";
+import { studentNumber } from "@/lib/kiosk";
 import { Fieldset } from "@/components/wizard/Fieldset";
 import { FieldShell, TextArea, TextField, tone } from "@/components/wizard/Fields";
 import { RecapBanner, RecapPerson } from "@/components/wizard/RecapBanner";
@@ -12,6 +14,7 @@ import { CATEGORIES, DESCRIPTION_MAX, DESCRIPTION_MIN, KIND_COPY, LOCATIONS, use
 export default function ObjetPage() {
   const router = useRouter();
   const { kind, declaration: d, update, ready } = useDeclaration();
+  const kiosk = useKiosk();
   const [attempted, setAttempted] = useState(false);
   const base = `/declarer/${kind}`;
 
@@ -140,7 +143,7 @@ export default function ObjetPage() {
 
           {!descriptionError && (
             <p className="text-label-sm font-medium text-slate">
-              Astuce : dites si votre prénom ou votre numéro d&apos;élève est écrit discrètement sur l&apos;objet.
+              Astuce : dites si votre prénom ou votre {studentNumber(kiosk.schoolType)} est écrit discrètement sur l&apos;objet.
             </p>
           )}
         </Fieldset>

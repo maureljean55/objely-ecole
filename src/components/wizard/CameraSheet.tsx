@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../kiosk/Button";
 import { Icon } from "../kiosk/Icon";
+import { encodePhoto } from "@/lib/photo";
 
 const OUTPUT = { width: 1024, height: 768 } as const; // 4:3
 
@@ -61,9 +62,6 @@ export function CameraSheet({
   const capture = () => {
     const video = videoRef.current;
     if (!video || !video.videoWidth) return;
-    const canvas = document.createElement("canvas");
-    canvas.width = OUTPUT.width;
-    canvas.height = OUTPUT.height;
     // Centre-crop the video frame to 4:3.
     const targetRatio = OUTPUT.width / OUTPUT.height;
     let sw = video.videoWidth;
@@ -72,8 +70,9 @@ export function CameraSheet({
     else sh = sw / targetRatio;
     const sx = (video.videoWidth - sw) / 2;
     const sy = (video.videoHeight - sh) / 2;
-    canvas.getContext("2d")?.drawImage(video, sx, sy, sw, sh, 0, 0, OUTPUT.width, OUTPUT.height);
-    onCapture(canvas.toDataURL("image/jpeg", 0.82));
+    // Encoded to fit the database's size limit: a detailed or dark shot is otherwise refused at submit.
+    const data = encodePhoto(OUTPUT.width, OUTPUT.height, (ctx, w, h) => ctx.drawImage(video, sx, sy, sw, sh, 0, 0, w, h));
+    if (data) onCapture(data);
   };
 
   return (

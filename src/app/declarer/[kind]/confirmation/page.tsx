@@ -46,6 +46,7 @@ export default function ConfirmationPage() {
   );
 
   const reference = ready ? d.reference : undefined;
+  const claimObjectId = ready ? d.claimObjectId : null;
   useEffect(() => {
     if (ready && !d.reference) router.replace("/");
   }, [ready, d.reference, router]);
@@ -55,6 +56,15 @@ export default function ConfirmationPage() {
     if (!reference) return;
     let cancelled = false;
     (async () => {
+      // Started from "C'est le mien" in Rechercher: the object is already known, link it straight away.
+      if (claimObjectId) {
+        const [linked] = await Promise.all([
+          confirmMatch(token, reference, { id: claimObjectId, source: "object" }),
+          new Promise((r) => setTimeout(r, MIN_SEARCH_MS)),
+        ]);
+        if (cancelled) return;
+        if (linked) return setPhase({ step: "result", outcome: "claimed" });
+      }
       const [candidates] = await Promise.all([findMatches(token, reference), new Promise((r) => setTimeout(r, MIN_SEARCH_MS))]);
       if (cancelled) return;
       setPhase(candidates.length > 0 ? { step: "candidates", candidates } : { step: "result", outcome: "none" });
@@ -62,7 +72,7 @@ export default function ConfirmationPage() {
     return () => {
       cancelled = true;
     };
-  }, [reference, token]);
+  }, [reference, token, claimObjectId]);
 
   const finish = () => {
     reset();

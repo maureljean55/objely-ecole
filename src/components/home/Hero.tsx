@@ -1,15 +1,18 @@
+import { Icon } from "../kiosk/Icon";
+
+// Real photos (the same as the category cards, see public/categories/CREDITS.md), shown as round tiles.
 const ORBIT_OBJECTS = [
-  { id: "wallet", src: "/illustrations/splash/wallet.png", alt: "Portefeuille", angle: 0 },
-  { id: "phone", src: "/illustrations/splash/phone.png", alt: "Téléphone", angle: 90 },
-  { id: "keys", src: "/illustrations/splash/keys.png", alt: "Clés", angle: 180 },
-  { id: "earbuds", src: "/illustrations/splash/earbuds.png", alt: "Écouteurs", angle: 270 },
+  { id: "sac", src: "/categories/sac.jpg", alt: "Sac à dos", angle: 0 },
+  { id: "telephone", src: "/categories/telephone.jpg", alt: "Téléphone", angle: 90 },
+  { id: "cles", src: "/categories/cles.jpg", alt: "Clés", angle: 180 },
+  { id: "autre", src: "/categories/autre.jpg", alt: "Écouteurs", angle: 270 },
 ] as const;
 
 // The Objely app's splash, slightly smaller than the original (280px scene, 56px objects): same gradient,
 // same objects orbiting a pulsing magnifier.
 const SCENE = 270;
 const ORBIT_RADIUS = 114;
-const OBJECT_SIZE = 50;
+const OBJECT_SIZE = 64;
 
 export function Hero() {
   return (
@@ -71,22 +74,18 @@ export function Hero() {
                   transform: `rotate(${obj.angle}deg) translate(${ORBIT_RADIUS}px) rotate(-${obj.angle}deg)`,
                 }}
               >
-                <div className="orbit-item-inner flex size-full items-center justify-center drop-shadow-[0_6px_14px_rgba(0,0,0,0.45)]">
+                <div className="orbit-item-inner size-full overflow-hidden rounded-full border-[3px] border-white shadow-[0_8px_18px_rgba(0,20,80,0.35)]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={obj.src} alt={obj.alt} draggable={false} className="max-h-full max-w-full object-contain" />
+                  <img src={obj.src} alt={obj.alt} draggable={false} className="size-full object-cover" />
                 </div>
               </div>
             ))}
           </div>
 
           {/* Magnifying glass */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/illustrations/splash/magnifier.png"
-            alt=""
-            draggable={false}
-            className="magnifier-pulse pointer-events-none relative w-[112px] select-none"
-          />
+          <span aria-hidden="true" className="magnifier-pulse relative flex size-[92px] items-center justify-center rounded-full bg-white text-[#0058bc] shadow-[0_10px_30px_rgba(0,20,80,0.35)]">
+            <Icon name="search" size={52} />
+          </span>
         </div>
       </div>
 

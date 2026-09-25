@@ -4,30 +4,17 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ChangeEvent } from "react";
 import { Icon } from "@/components/kiosk/Icon";
 import { LogoMark } from "@/components/kiosk/LogoMark";
+import { encodePhoto } from "@/lib/photo";
 import { phoneSessionInfo, uploadPhoto, type PhoneSession } from "@/lib/photoSession";
 
-// The database refuses photos over 400 000 characters of data URL: shrink until it fits.
-const MAX_DATA_URL = 390_000;
-const SIZES = [1280, 1024, 800, 640];
-const QUALITIES = [0.8, 0.7, 0.6];
+// Phone photos are big: start from at most 1280 px on the long side, then shrink until it fits the database's limit.
+const MAX_SIDE = 1280;
 
 async function toJpeg(file: File): Promise<string | null> {
   const bitmap = await createImageBitmap(file).catch(() => null);
   if (!bitmap) return null;
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  for (const size of SIZES) {
-    const scale = Math.min(1, size / Math.max(bitmap.width, bitmap.height));
-    canvas.width = Math.round(bitmap.width * scale);
-    canvas.height = Math.round(bitmap.height * scale);
-    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-    for (const quality of QUALITIES) {
-      const data = canvas.toDataURL("image/jpeg", quality);
-      if (data.length <= MAX_DATA_URL) return data;
-    }
-  }
-  return null;
+  const scale = Math.min(1, MAX_SIDE / Math.max(bitmap.width, bitmap.height));
+  return encodePhoto(bitmap.width * scale, bitmap.height * scale, (ctx, w, h) => ctx.drawImage(bitmap, 0, 0, w, h));
 }
 
 type Phase = "loading" | "ready" | "invalid" | "offline";

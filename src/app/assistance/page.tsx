@@ -38,7 +38,7 @@ export default function AssistancePage() {
             <p className="mt-3 text-body-lg text-white/90">Ou rendez-vous directement au bureau de la vie scolaire.</p>
           </div>
           <div className="flex flex-col justify-center rounded-card border-2 border-line bg-white p-8">
-            <p className="text-h-md text-ink">Vos données restent au lycée</p>
+            <p className="text-h-md text-ink">Vos données restent dans l&apos;établissement</p>
             <p className="mt-2 text-body-lg text-slate">
               Seule l&apos;équipe de la vie scolaire du {kiosk.school} voit vos coordonnées et vos photos.
             </p>

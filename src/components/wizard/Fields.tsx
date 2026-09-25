@@ -120,15 +120,23 @@ type TextAreaProps = Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "onChange
   onChange: (value: string) => void;
   optional?: string;
   maxLength: number;
+  /** Shown in red under the field (and the field turns red). */
+  error?: string;
 };
 
-export function TextArea({ label, value, onChange, optional, maxLength, className = "", ...props }: TextAreaProps) {
+export function TextArea({ label, value, onChange, optional, maxLength, error, required, className = "", ...props }: TextAreaProps) {
   const id = useId();
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
       <div className="flex items-baseline justify-between text-label-md text-ink">
         <label htmlFor={id}>
-          {label} {optional && <span className="font-normal text-slate">{optional}</span>}
+          {label}
+          {required && (
+            <span aria-hidden="true" className="ml-0.5 text-danger">
+              *
+            </span>
+          )}{" "}
+          {optional && <span className="font-normal text-slate">{optional}</span>}
         </label>
         <span className="font-mono text-label-sm tabular-nums text-slate">
           {value.length}/{maxLength}
@@ -139,9 +147,18 @@ export function TextArea({ label, value, onChange, optional, maxLength, classNam
         value={value}
         maxLength={maxLength}
         onChange={(e) => onChange(e.target.value)}
-        className={`resize-none px-4 py-3 leading-snug ${CONTROL} ${tone()} ${className}`}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${id}-note` : undefined}
+        required={required}
+        className={`resize-none px-4 py-3 leading-snug ${CONTROL} ${tone(error)} ${className}`}
         {...props}
       />
+      {error && (
+        <p id={`${id}-note`} role="alert" className="flex items-center gap-1 text-label-sm font-semibold text-danger">
+          <Icon name="error" size={17} fill />
+          {error}
+        </p>
+      )}
     </div>
   );
 }

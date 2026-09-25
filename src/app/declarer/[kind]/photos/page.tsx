@@ -25,6 +25,7 @@ export default function PhotosPage() {
   const [cameraSlot, setCameraSlot] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [photoMissing, setPhotoMissing] = useState(false);
   const base = `/declarer/${kind}`;
 
   const hasObject = Boolean(d.category && d.objectName.trim());
@@ -39,6 +40,11 @@ export default function PhotosPage() {
   const firstEmpty = d.photos.findIndex((p) => !p);
 
   const submit = async () => {
+    // At least one photo: it is what lets the vie scolaire (and the instant search) recognise the object.
+    if (photoCount === 0) {
+      setPhotoMissing(true);
+      return;
+    }
     setSubmitting(true);
     setError(null);
     const result = await submitDeclaration(token, kind, d);
@@ -69,26 +75,25 @@ export default function PhotosPage() {
       back={{ label: "Modifier l'objet", icon: "arrow_back", onClick: () => router.push(`${base}/objet`) }}
       next={{ label: submitting ? "Envoi…" : "Valider la déclaration", icon: "task_alt", onClick: submit, busy: submitting }}
       status={
-        error ? (
-          <p role="alert" className="max-w-[300px] text-center text-danger-ink">
+        photoMissing && photoCount === 0 ? (
+          <p role="alert" className="max-w-[300px] text-center text-label-md font-semibold text-danger">
+            Ajoutez au moins une photo de l&apos;objet pour valider.
+          </p>
+        ) : error ? (
+          <p role="alert" className="max-w-[300px] text-center text-danger">
             {error}
           </p>
         ) : (
-          <button
-            type="button"
-            onClick={submit}
-            disabled={submitting}
-            className="press h-[52px] px-4 text-label-md text-slate underline underline-offset-4 hover:text-ink"
-          >
-            Finaliser sans photo supplémentaire
-          </button>
+          <p className={`max-w-[300px] text-center text-label-md ${photoCount === 0 ? "text-slate" : "text-ok"}`}>
+            {photoCount === 0 ? "Au moins une photo est obligatoire." : `${photoCount} photo${photoCount > 1 ? "s" : ""} ajoutée${photoCount > 1 ? "s" : ""}`}
+          </p>
         )
       }
     >
       <StepCard>
         <div className="mb-3 flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-h-lg text-ink">Ajouter des photos</h1>
+            <h1 className="text-h-lg text-ink">Ajoutez au moins une photo</h1>
             <p className="mt-0.5 text-body-md text-slate">{copy.photosLead}</p>
           </div>
           <span className={`shrink-0 text-label-sm ${idleRemaining <= 30 ? "text-warn" : "text-slate"}`}>

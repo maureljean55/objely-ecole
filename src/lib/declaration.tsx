@@ -31,6 +31,8 @@ export const PHOTO_SLOTS = [
 ] as const;
 
 export const DESCRIPTION_MAX = 250;
+/** The description is required: at least this many characters. */
+export const DESCRIPTION_MIN = 10;
 
 export type Declaration = {
   nom: string;

@@ -7,7 +7,7 @@ import { Fieldset } from "@/components/wizard/Fieldset";
 import { FieldShell, TextArea, TextField, tone } from "@/components/wizard/Fields";
 import { RecapBanner, RecapPerson } from "@/components/wizard/RecapBanner";
 import { StepCard, WizardPage } from "@/components/wizard/WizardPage";
-import { CATEGORIES, DESCRIPTION_MAX, KIND_COPY, LOCATIONS, useDeclaration } from "@/lib/declaration";
+import { CATEGORIES, DESCRIPTION_MAX, DESCRIPTION_MIN, KIND_COPY, LOCATIONS, useDeclaration } from "@/lib/declaration";
 
 export default function ObjetPage() {
   const router = useRouter();
@@ -26,10 +26,16 @@ export default function ObjetPage() {
   const copy = KIND_COPY[kind];
   const missingCategory = attempted && !d.category;
   const missingName = attempted && !d.objectName.trim();
+  const locationError = attempted && !d.location ? "Choisissez un lieu (ou « Je ne sais pas »)" : undefined;
+  // A few words are enough, but "ok" is not: the description is what tells two similar objects apart.
+  const descriptionError =
+    attempted && d.description.trim().length < DESCRIPTION_MIN
+      ? `Décrivez l'objet en quelques mots (${DESCRIPTION_MIN} caractères minimum)`
+      : undefined;
 
   const next = () => {
     setAttempted(true);
-    if (!d.category || !d.objectName.trim()) return;
+    if (!d.category || !d.objectName.trim() || !d.location || d.description.trim().length < DESCRIPTION_MIN) return;
     router.push(`${base}/photos`);
   };
 
@@ -117,39 +123,43 @@ export default function ObjetPage() {
               enterKeyHint="next"
               className="!h-[52px]"
             />
-            <LocationSelect label={copy.locationLabel} value={d.location} onChange={(location) => update({ location })} />
+            <LocationSelect label={copy.locationLabel} value={d.location} onChange={(location) => update({ location })} error={locationError} />
           </div>
 
           <TextArea
             label="Description"
-            optional="(facultatif)"
+            required
+            error={descriptionError}
             value={d.description}
             onChange={(description) => update({ description })}
             maxLength={DESCRIPTION_MAX}
             rows={2}
             placeholder="Couleur, marque, autocollants, rayures, nom inscrit…"
-            className="!h-[88px]"
+            className="!h-[64px]"
           />
 
-          <p className="text-label-sm font-medium text-slate">
-            Astuce : dites si votre prénom ou votre numéro d&apos;élève est écrit discrètement sur l&apos;objet.
-          </p>
+          {!descriptionError && (
+            <p className="text-label-sm font-medium text-slate">
+              Astuce : dites si votre prénom ou votre numéro d&apos;élève est écrit discrètement sur l&apos;objet.
+            </p>
+          )}
         </Fieldset>
       </StepCard>
     </WizardPage>
   );
 }
 
-function LocationSelect({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+function LocationSelect({ label, value, onChange, error }: { label: string; value: string; onChange: (v: string) => void; error?: string }) {
   const id = "location";
   return (
-    <FieldShell id={id} label={label} aside="Facultatif">
+    <FieldShell id={id} label={label} required error={error}>
       <div className="relative flex items-center">
         <select
           id={id}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={`h-[52px] w-full appearance-none rounded-field border-2 pl-4 pr-12 text-body-xl outline-none transition-[background-color,border-color,box-shadow] ${tone()} ${
+          aria-invalid={error ? true : undefined}
+          className={`h-[52px] w-full appearance-none rounded-field border-2 pl-4 pr-12 text-body-xl outline-none transition-[background-color,border-color,box-shadow] ${tone(error)} ${
             value ? "text-ink" : "text-slate/70"
           }`}
         >

@@ -78,16 +78,26 @@ export default function ObjetPage() {
                 role="radio"
                 aria-checked={selected}
                 onClick={() => update({ category: c.id })}
-                className={`press flex h-[92px] flex-col items-center justify-center gap-2 rounded-card border-2 ${
+                className={`press relative h-[92px] overflow-hidden rounded-card border-2 bg-canvas text-left ${
                   selected
-                    ? "border-accent bg-accent text-white"
+                    ? "border-accent shadow-[0_0_0_3px_color-mix(in_srgb,var(--accent)_30%,transparent)]"
                     : missingCategory
-                      ? "border-danger bg-white text-ink"
-                      : "border-line-strong bg-white text-ink hover:border-ink"
+                      ? "border-danger"
+                      : "border-line-strong hover:border-ink"
                 }`}
               >
-                <Icon name={c.icon} size={32} fill={selected} />
-                <span className="text-label-md">{c.label}</span>
+                {/* Real photos (Wikimedia Commons, public domain / CC0): see public/categories/CREDITS.md. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/categories/${c.id}.jpg`} alt="" className="absolute inset-0 size-full object-cover" draggable={false} />
+                <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-ink/75 to-transparent" />
+                <span className="absolute inset-x-0 bottom-0 px-2.5 pb-2 text-label-md font-semibold text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.5)]">
+                  {c.label}
+                </span>
+                {selected && (
+                  <span className="absolute right-1.5 top-1.5 flex size-7 items-center justify-center rounded-full bg-accent text-white shadow">
+                    <Icon name="check" size={18} />
+                  </span>
+                )}
               </button>
             );
           })}

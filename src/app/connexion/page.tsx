@@ -74,16 +74,12 @@ export default function ConnexionPage() {
           spellCheck={false}
           enterKeyHint="go"
           aria-label="Code de la borne"
-          aria-describedby="code-format"
           aria-invalid={error ? true : undefined}
           placeholder={busy ? "Vérification…" : "Code de la borne"}
           className={`h-[88px] w-[560px] rounded-[28px] border-2 bg-white text-center font-mono text-[40px] font-semibold tracking-[0.3em] text-ink caret-blue outline-none transition-[border-color,box-shadow] placeholder:font-sans placeholder:text-[26px] placeholder:font-medium placeholder:tracking-normal placeholder:text-slate/60 focus:shadow-[0_0_0_5px_rgba(31,99,224,0.18)] disabled:opacity-70 ${
             error ? "border-danger animate-shake" : "border-line-strong focus:border-blue"
           }`}
         />
-        <p id="code-format" className="text-body-lg text-slate">
-          Format : <span className="font-mono font-semibold tracking-[0.1em] text-ink">#A7K9Q2</span> · 6 lettres ou chiffres, donné par la vie scolaire
-        </p>
         <button
           type="submit"
           disabled={!complete || busy}
